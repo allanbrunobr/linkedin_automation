@@ -22,6 +22,7 @@ frontend/npm-debug.log*
 backend/target/
 backend/.cargo/
 backend/Cargo.lock
+backend/config.toml
 
 # macOS
 .DS_Store
