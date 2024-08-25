@@ -1,0 +1,31 @@
+[package]
+name = "linkedin_automation"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+reqwest = { version = "0.12.7", features = ["json", "blocking"] }
+tokio = { version = "1", features = ["full"] }
+warp = "0.3"
+futures = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+cron = "0.12.1"
+toml = "0.8.19"
+chrono = { version = "0.4", features = ["serde"] }
+time = "0.3.36"
+mongodb = "3.0.1"
+bson = { version = "2.6.0", features = ["chrono-0_4"] }
+futures-util = "0.3.30"
+warp-cors = "0.3"
+log = "0.4"
+env_logger = "0.11.5"
+bytes = "1.7.1"
+
+[[bin]]
+name = "scheduler"
+path = "src/scheduler.rs"
+
+[[bin]]
+name = "web_server"
+path = "src/web.rs"
