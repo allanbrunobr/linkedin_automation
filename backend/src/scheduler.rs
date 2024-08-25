@@ -9,6 +9,66 @@ use log::{info, error};
 mod api;
 mod config;
 
+/// The main entry point for the LinkedIn post scheduler.
+/// This function continuously checks the MongoDB collection for posts scheduled
+/// to be published at or before the current time and publishes them on LinkedIn.
+///
+/// # Returns
+///
+/// This function returns a `Result<(), Box<dyn std::error::Error>>`. The function
+/// will return `Ok(())` if it runs successfully, or an `Err` if an error occurs during execution.
+///
+/// # Errors
+///
+/// This function will return an error in the following situations:
+///
+/// - If the configuration file `config.toml` cannot be loaded.
+/// - If the connection to the MongoDB database fails.
+/// - If there's an error retrieving posts from the MongoDB collection.
+/// - If there's an error publishing an article to LinkedIn.
+/// - If there's an error updating the status of a post in MongoDB after publishing.
+///
+/// # Functionality
+///
+/// 1. **Logging Initialization**: The function initializes the logging environment
+///    using `env_logger` to provide detailed runtime information for monitoring and debugging.
+///
+/// 2. **Configuration Loading**: It loads the configuration settings from `config.toml`
+///    using the `load_config` function, including the `access_token` for LinkedIn API access.
+///
+/// 3. **MongoDB Connection**: It establishes a connection to a MongoDB database, specifically
+///    targeting the `lkdin-posts` database and the `posts` collection, where scheduled posts are stored.
+///
+/// 4. **Infinite Loop**: The function enters an infinite loop to continuously check for posts that
+///    need to be published:
+///
+///    - The current time is obtained in UTC and then converted to the local time in Brazil (UTC-3).
+///
+///    - It constructs a MongoDB filter to find posts with a `scheduled_time` less than or equal to the current time
+///      and with a `status` of "pending".
+///
+///    - The function retrieves these posts using a cursor and iterates through them.
+///
+///    - For each post:
+///      - The scheduled time is retrieved and converted to the local time in Brazil.
+///      - If the scheduled time is still in the future, the function waits until the post's scheduled time.
+///
+///      - The post's `title` and `content` are retrieved and used to publish the article to LinkedIn using the `publish_article` function.
+///
+///      - If the post is published successfully, the function updates the `status` of the post to "published" in MongoDB.
+///
+///    - The loop then waits for 20 seconds before checking for new posts to publish.
+///
+/// # Example Usage
+///
+/// To run this scheduler, simply execute the compiled binary:
+///
+/// ```bash
+/// cargo run --bin scheduler
+/// ```
+///
+/// The scheduler will start running, continuously checking the MongoDB database for posts to publish
+/// and logging the results to the console.
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
