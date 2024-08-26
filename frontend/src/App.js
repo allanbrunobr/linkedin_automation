@@ -1,19 +1,26 @@
 import React from 'react';
+import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 import PostSchedulerForm from './PostSchedulerForm';
+import PostQuery from './PostQuery';
+import UpdatePost from './UpdatePost';
 
 const App = () => {
     return (
-        <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-            <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-light-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
-                <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
-                    <h1 className="text-4xl font-bold mb-5 text-center text-gray-800">
-                        LinkedIn Post Scheduler
-                    </h1>
-                    <PostSchedulerForm />
-                </div>
+        <Router>
+            <div className="container mt-5">
+                <nav className="navbar navbar-expand-lg navbar-light bg-light">
+                    <div className="navbar-nav">
+                        <Link to="/" className="nav-item nav-link">Schedule Post</Link>
+                        <Link to="/query" className="nav-item nav-link">Query Posts</Link>
+                    </div>
+                </nav>
+                <Routes>
+                    <Route path="/" element={<PostSchedulerForm />} />
+                    <Route path="/query" element={<PostQuery />} />
+                    <Route path="/update" element={<UpdatePost />} />
+                </Routes>
             </div>
-        </div>
+        </Router>
     );
 };
 

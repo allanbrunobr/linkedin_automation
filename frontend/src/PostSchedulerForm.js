@@ -3,12 +3,29 @@ import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+/**
+ * A form component that allows users to schedule a post.
+ *
+ * The PostSchedulerForm component provides a form with fields for the post title,
+ * content, and scheduled time. It also includes an emoji picker for adding emojis to the content.
+ * The form data is sent to a server when the form is submitted.
+ *
+ * @component
+ */
 const PostSchedulerForm = () => {
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
-    const [scheduledTime, setScheduledTime] = useState('');
-    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [title, setTitle] = useState('');  // State for the title of the post
+    const [content, setContent] = useState('');  // State for the content of the post
+    const [scheduledTime, setScheduledTime] = useState('');  // State for the scheduled time of the post
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);  // State to toggle the emoji picker
 
+    /**
+     * Handles form submission.
+     *
+     * This function is called when the form is submitted. It gathers the form data,
+     * sends a POST request to the server to schedule the post, and then clears the form.
+     *
+     * @param {Event} event - The form submission event.
+     */
     const handleSubmit = (event) => {
         event.preventDefault();
         const post = {
@@ -19,7 +36,7 @@ const PostSchedulerForm = () => {
         };
 
         fetch('http://localhost:8080/schedule', {
-            method: 'POST', // Especificando o método HTTP correto
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -35,6 +52,11 @@ const PostSchedulerForm = () => {
             });
     };
 
+    /**
+     * Clears the form fields.
+     *
+     * This function resets the form fields to their initial state.
+     */
     const clearForm = () => {
         setTitle('');
         setContent('');
@@ -42,6 +64,14 @@ const PostSchedulerForm = () => {
         setShowEmojiPicker(false);
     };
 
+    /**
+     * Adds an emoji to the content.
+     *
+     * This function is called when an emoji is selected from the emoji picker.
+     * The selected emoji is appended to the current content.
+     *
+     * @param {Object} emoji - The selected emoji object.
+     */
     const addEmoji = (emoji) => {
         setContent(content + emoji.native);
         setShowEmojiPicker(false);
