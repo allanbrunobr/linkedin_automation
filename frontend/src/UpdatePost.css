@@ -1,21 +1,8 @@
 @import 'SharedStyles.css';
 
-.update-post-container {
-    composes: form-container;
-}
-
-.update-post-title {
-    composes: form-title;
-}
-
 .update-post-form {
     display: flex;
     flex-direction: column;
-}
-
-.update-button {
-    composes: button;
-    align-self: flex-start;
 }
 
 @media (max-width: 600px) {

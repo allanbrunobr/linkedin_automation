@@ -8,12 +8,10 @@ const PostQuery = () => {
     const [endDate, setEndDate] = useState('');
     const [isSingleDay, setIsSingleDay] = useState(false);
     const [posts, setPosts] = useState([]);
-    // eslint-disable-next-line no-unused-vars
     const [selectedPost, setSelectedPost] = useState(null);
     const navigate = useNavigate();
 
-    const fetchPosts = (event) => {
-        event.preventDefault();
+    const fetchPosts = () => {
         const queryEndDate = isSingleDay ? startDate : endDate;
         fetch(`http://localhost:8080/posts?start_date=${startDate}&end_date=${queryEndDate}`)
             .then(response => response.json())
@@ -45,13 +43,18 @@ const PostQuery = () => {
             .catch(error => console.error('Error fetching posts:', error));
     };
 
+    const handleFormSubmit = (event) => {
+        event.preventDefault();
+        fetchPosts();
+    };
+
     const deletePost = (id) => {
         fetch(`http://localhost:8080/posts/${id}`, {
             method: 'DELETE',
         })
             .then(() => {
                 alert('Post deleted successfully!');
-                fetchPosts();
+                fetchPosts();  // Re-fetch posts after deletion
             })
             .catch(error => console.error('Error deleting post:', error));
     };
@@ -71,7 +74,7 @@ const PostQuery = () => {
     return (
         <div className="form-container post-query-container">
             <h1 className="form-title">Query Scheduled Posts</h1>
-            <form onSubmit={fetchPosts} className="query-form">
+            <form onSubmit={handleFormSubmit} className="query-form">
                 <div className="form-group date-inputs">
                     <div className="date-input">
                         <label htmlFor="startDate">Start Date</label>
@@ -118,8 +121,12 @@ const PostQuery = () => {
                                     <p>{post.scheduled_time}</p>
                                 </div>
                                 <div className="post-actions">
-                                    <button onClick={() => handleUpdateClick(post)} className="update-button">Update</button>
-                                    <button onClick={() => deletePost(post._id)} className="delete-button">Delete</button>
+                                    <button onClick={() => handleUpdateClick(post)}
+                                            className="form-button update-button">Update
+                                    </button>
+                                    <button onClick={() => deletePost(post._id)}
+                                            className="form-button delete-button">Delete
+                                    </button>
                                 </div>
                             </li>
                         ))}

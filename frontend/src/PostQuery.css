@@ -24,10 +24,6 @@
     margin-right: 0;
 }
 
-.search-button {
-    composes: button;
-}
-
 .post-list {
     list-style: none;
     padding: 0;
@@ -48,8 +44,20 @@
     margin-left: 10px;
 }
 
-.update-button, .delete-button {
-    composes: button;
+.update-button {
+    background-color: #28a745;
+}
+
+.update-button:hover {
+    background-color: #218838;
+}
+
+.delete-button {
+    background-color: #dc3545;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
 }
 
 .update-button {
