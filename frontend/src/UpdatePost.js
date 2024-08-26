@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import './UpdatePost.css';
+import './SharedStyles.css';
 
 const UpdatePost = () => {
     const navigate = useNavigate();
@@ -23,7 +25,6 @@ const UpdatePost = () => {
 
     const handleUpdate = (event) => {
         event.preventDefault();
-
         if (!post) return;
 
         const updatedPost = {
@@ -35,15 +36,13 @@ const UpdatePost = () => {
 
         fetch(`http://localhost:8080/posts/${post._id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedPost),
         })
             .then(response => {
                 if (response.ok) {
                     alert('Post updated successfully!');
-                    navigate('/'); // Navigate back to the list view after update
+                    navigate('/');
                 } else {
                     return response.text().then(text => {
                         alert(`Failed to update post: ${text}`);
@@ -53,42 +52,42 @@ const UpdatePost = () => {
             .catch(error => console.error('Error updating post:', error));
     };
 
-    if (!post) return <div>Loading...</div>; // Add a loading state
+    if (!post) return <div>Loading...</div>;
 
     return (
-        <div>
-            <h2>Update Post</h2>
+        <div className="form-container">
+            <h1 className="form-title">Update Post</h1>
             <form onSubmit={handleUpdate}>
                 <div className="form-group">
-                    <label>Title</label>
+                    <label htmlFor="title">Title</label>
                     <input
                         type="text"
+                        id="title"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="form-control"
                         required
                     />
                 </div>
                 <div className="form-group">
-                    <label>Content</label>
+                    <label htmlFor="content">Content</label>
                     <textarea
+                        id="content"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        className="form-control"
                         required
                     />
                 </div>
                 <div className="form-group">
-                    <label>Scheduled Time</label>
+                    <label htmlFor="scheduledTime">Scheduled Time</label>
                     <input
                         type="datetime-local"
+                        id="scheduledTime"
                         value={scheduledTime}
                         onChange={(e) => setScheduledTime(e.target.value)}
-                        className="form-control"
                         required
                     />
                 </div>
-                <button type="submit" className="btn btn-primary">Update</button>
+                <button type="submit" className="form-button">Update</button>
             </form>
         </div>
     );
