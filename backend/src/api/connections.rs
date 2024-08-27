@@ -96,6 +96,25 @@ pub fn initialize() {
     });
 }
 
+    /// Tests the successful retrieval of a profile ID.
+    ///
+    /// This test ensures that the `get_profile_id` function correctly handles a successful response from the LinkedIn API.
+    ///
+    /// # Steps
+    ///
+    /// 1. Initializes the test environment.
+    /// 2. Creates a mock server to simulate the LinkedIn API.
+    /// 3. Sets up a mock response for a successful profile ID retrieval.
+    /// 4. Calls the `get_profile_id` function with the mock server URL.
+    /// 5. Asserts that the mock was called and the correct profile ID was returned.
+    ///
+    /// # Returns
+    ///
+    /// This function does not return any value.
+    ///
+    /// # Panics
+    ///
+    /// This test will panic if the assertions fail, indicating that the `get_profile_id` function did not behave as expected.
     #[tokio::test]
     async fn test_get_profile_id_success() {
         initialize();
@@ -115,6 +134,26 @@ pub fn initialize() {
         mock.assert_async().await;
         assert_eq!(result.unwrap(), "mock-profile-id");
     }
+
+    /// Tests the failure scenario when retrieving a profile ID.
+    ///
+    /// This test ensures that the `get_profile_id` function correctly handles an error response from the LinkedIn API.
+    ///
+    /// # Steps
+    ///
+    /// 1. Initializes the test environment.
+    /// 2. Creates a mock server to simulate the LinkedIn API.
+    /// 3. Sets up a mock response for a failed profile ID retrieval.
+    /// 4. Calls the `get_profile_id` function with the mock server URL.
+    /// 5. Asserts that the mock was called and an error was returned.
+    ///
+    /// # Returns
+    ///
+    /// This function does not return any value.
+    ///
+    /// # Panics
+    ///
+    /// This test will panic if the assertions fail, indicating that the `get_profile_id` function did not handle the error scenario as expected.
 
     #[tokio::test]
     async fn test_get_profile_id_failure() {
