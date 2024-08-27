@@ -1,7 +1,6 @@
-use reqwest::Client;
 use reqwest::header::{HeaderMap, AUTHORIZATION};
+use reqwest::Client;
 use serde_json::Value;
-
 
 /// Retrieves the LinkedIn profile ID of the authenticated user.
 ///
@@ -32,18 +31,21 @@ use serde_json::Value;
 /// let profile_id = get_profile_id(&access_token).await?;
 /// println!("Profile ID: {}", profile_id);
 /// ```
-pub async fn get_profile_id(access_token: &str, base_url: Option<String>) -> Result<String, Box<dyn std::error::Error>> {
+pub async fn get_profile_id(
+    access_token: &str,
+    base_url: Option<String>,
+) -> Result<String, Box<dyn std::error::Error>> {
     let client = Client::new();
-    let url = format!("{}/v2/userinfo", base_url.unwrap_or_else(|| "https://api.linkedin.com".to_string()));
+    let url = format!(
+        "{}/v2/userinfo",
+        base_url.unwrap_or_else(|| "https://api.linkedin.com".to_string())
+    );
 
     let mut headers = HeaderMap::new();
     headers.insert(AUTHORIZATION, format!("Bearer {}", access_token).parse()?);
 
     println!("Sending request to {}", url);
-    let response = client.get(url)
-        .headers(headers)
-        .send()
-        .await?;
+    let response = client.get(url).headers(headers).send().await?;
 
     println!("Response status: {}", response.status());
 
@@ -53,7 +55,10 @@ pub async fn get_profile_id(access_token: &str, base_url: Option<String>) -> Res
 
         let profile_id = profile_info["sub"].as_str().unwrap_or("").to_string();
         if profile_id.is_empty() {
-            Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "Profile ID not found")))
+            Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Profile ID not found",
+            )))
         } else {
             println!("Profile ID: {}", profile_id);
             Ok(profile_id)
@@ -61,7 +66,10 @@ pub async fn get_profile_id(access_token: &str, base_url: Option<String>) -> Res
     } else {
         let error_text = response.text().await?;
         println!("Failed to retrieve user info: {:?}", error_text);
-        Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, format!("Failed to retrieve user info: {}", error_text))))
+        Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Failed to retrieve user info: {}", error_text),
+        )))
     }
 }
 
@@ -74,27 +82,27 @@ mod tests {
     static INIT: Once = Once::new();
 
     /// Initializes the test environment by setting up a logger for test cases.
-///
-/// This function is called once at the beginning of the test suite to ensure that the logger is properly configured for testing purposes.
-///
-/// # Arguments
-///
-/// This function does not take any arguments.
-///
-/// # Returns
-///
-/// This function does not return any value.
-///
-/// # Example
-///
-/// ```rust
-/// initialize();
-/// ```
-pub fn initialize() {
-    INIT.call_once(|| {
-        let _ = env_logger::builder().is_test(true).try_init();
-    });
-}
+    ///
+    /// This function is called once at the beginning of the test suite to ensure that the logger is properly configured for testing purposes.
+    ///
+    /// # Arguments
+    ///
+    /// This function does not take any arguments.
+    ///
+    /// # Returns
+    ///
+    /// This function does not return any value.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// initialize();
+    /// ```
+    pub fn initialize() {
+        INIT.call_once(|| {
+            let _ = env_logger::builder().is_test(true).try_init();
+        });
+    }
 
     /// Tests the successful retrieval of a profile ID.
     ///
@@ -121,8 +129,12 @@ pub fn initialize() {
 
         let mut server = Server::new_async().await;
 
-        let mock = server.mock("GET", "/v2/userinfo")
-            .match_header("Authorization", mockito::Matcher::Regex("Bearer .+".to_string()))
+        let mock = server
+            .mock("GET", "/v2/userinfo")
+            .match_header(
+                "Authorization",
+                mockito::Matcher::Regex("Bearer .+".to_string()),
+            )
             .with_status(200)
             .with_header("content-type", "application/json")
             .with_body(r#"{"sub": "mock-profile-id"}"#)
@@ -161,8 +173,12 @@ pub fn initialize() {
 
         let mut server = Server::new_async().await;
 
-        let mock = server.mock("GET", "/v2/userinfo")
-            .match_header("Authorization", mockito::Matcher::Regex("Bearer .+".to_string()))
+        let mock = server
+            .mock("GET", "/v2/userinfo")
+            .match_header(
+                "Authorization",
+                mockito::Matcher::Regex("Bearer .+".to_string()),
+            )
             .with_status(500)
             .with_body("Internal Server Error")
             .create_async()

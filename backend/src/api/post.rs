@@ -1,6 +1,6 @@
-use reqwest::Client;
+use log::info;
 use reqwest::header::{HeaderMap, AUTHORIZATION, CONTENT_TYPE};
-use log::{info};
+use reqwest::Client;
 
 /// Publishes an article on LinkedIn using the provided access token and profile ID.
 ///
@@ -33,9 +33,15 @@ use log::{info};
 ///
 /// publish_article(access_token, profile_id, title, content).await?;
 /// ```
-pub async fn publish_article(access_token: &str, profile_id: &str, _title: &str, _content: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn publish_article(
+    access_token: &str,
+    profile_id: &str,
+    _title: &str,
+    _content: &str,
+    base_url: Option<&str>,
+) -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
-    let url = "https://api.linkedin.com/v2/ugcPosts";
+    let url = format!("{}/v2/ugcPosts", base_url.unwrap_or("https://api.linkedin.com"));
 
     let mut headers = HeaderMap::new();
     headers.insert(AUTHORIZATION, format!("Bearer {}", access_token).parse()?);
@@ -60,17 +66,16 @@ pub async fn publish_article(access_token: &str, profile_id: &str, _title: &str,
 
     info!("Sending POST request to LinkedIn with body: {:?}", body);
 
-    let response = client.post(url)
-        .headers(headers)
-        .json(&body)
-        .send()
-        .await?;
+    let response = client.post(url).headers(headers).json(&body).send().await?;
 
     if response.status().is_success() {
         info!("Article published successfully!");
         Ok(())
     } else {
         println!("Failed to publish article: {:?}", response.text().await?);
-        Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "Failed to publish article")))
+        Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "Failed to publish article",
+        )))
     }
 }

@@ -1,12 +1,15 @@
-use std::fmt;
 use futures_util::TryStreamExt;
-use warp::Filter;
-use mongodb::{Client, bson::{doc, DateTime as BsonDateTime}};
+use log::{error, info};
+use mongodb::{
+    bson::{doc, DateTime as BsonDateTime},
+    Client,
+};
 use serde::{Deserialize, Serialize};
-use warp::cors;
-use log::{info, error};
+use std::fmt;
 use std::sync::Arc;
+use warp::cors;
 use warp::reject::Reject;
+use warp::Filter;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct Post {
@@ -41,7 +44,9 @@ fn default_status() -> String {
 async fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
-    let mongo_client = Client::with_uri_str("mongodb://localhost:27017").await.unwrap();
+    let mongo_client = Client::with_uri_str("mongodb://localhost:27017")
+        .await
+        .unwrap();
     let db = mongo_client.database("lkdin-posts");
     let posts = Arc::new(db.collection("posts"));
 
@@ -69,7 +74,10 @@ async fn main() {
                         Ok(dt) => dt,
                         Err(e) => {
                             error!("Error parsing date: {}", e);
-                            return Ok::<_, warp::Rejection>(warp::reply::with_status("Invalid date format", warp::http::StatusCode::BAD_REQUEST));
+                            return Ok::<_, warp::Rejection>(warp::reply::with_status(
+                                "Invalid date format",
+                                warp::http::StatusCode::BAD_REQUEST,
+                            ));
                         }
                     };
 
@@ -80,7 +88,10 @@ async fn main() {
                         "status": post.status,
                     };
                     posts.insert_one(doc).await.unwrap();
-                    Ok::<_, warp::Rejection>(warp::reply::with_status("Post scheduled", warp::http::StatusCode::OK))
+                    Ok::<_, warp::Rejection>(warp::reply::with_status(
+                        "Post scheduled",
+                        warp::http::StatusCode::OK,
+                    ))
                 }
             })
             .with(cors.clone())
@@ -103,12 +114,12 @@ async fn main() {
                     ) {
                         (Ok(start_dt), Ok(end_dt)) => {
                             let filter = doc! {
-                            "scheduled_time": {
-                                "$gte": start_dt,
-                                "$lte": end_dt,
-                            },
-                            "status": "pending"
-                        };
+                                "scheduled_time": {
+                                    "$gte": start_dt,
+                                    "$lte": end_dt,
+                                },
+                                "status": "pending"
+                            };
                             let mut cursor = posts.find(filter).await.unwrap();
                             let mut results = Vec::new();
                             while let Ok(Some(post)) = cursor.try_next().await {
@@ -126,8 +137,6 @@ async fn main() {
             .with(cors.clone())
     };
 
-
-
     let delete_post = {
         let posts = Arc::clone(&posts);
         warp::delete()
@@ -137,7 +146,10 @@ async fn main() {
                 async move {
                     let object_id = bson::oid::ObjectId::parse_str(&id).unwrap();
                     posts.delete_one(doc! { "_id": object_id }).await.unwrap();
-                    Ok::<_, warp::Rejection>(warp::reply::with_status("Post deleted", warp::http::StatusCode::OK))
+                    Ok::<_, warp::Rejection>(warp::reply::with_status(
+                        "Post deleted",
+                        warp::http::StatusCode::OK,
+                    ))
                 }
             })
             .with(cors.clone())
@@ -157,44 +169,62 @@ async fn main() {
                         Ok(oid) => oid,
                         Err(e) => {
                             error!("Failed to parse ObjectId from {}: {:?}", id, e);
-                            return Ok::<_, warp::Rejection>(
-                                warp::reply::with_status("Invalid ID format", warp::http::StatusCode::BAD_REQUEST)
-                            );
+                            return Ok::<_, warp::Rejection>(warp::reply::with_status(
+                                "Invalid ID format",
+                                warp::http::StatusCode::BAD_REQUEST,
+                            ));
                         }
                     };
 
-                    let bson_dt = match BsonDateTime::parse_rfc3339_str(&updated_post.scheduled_time) {
-                        Ok(dt) => dt,
-                        Err(e) => {
-                            error!("Failed to parse scheduled_time {}: {:?}", updated_post.scheduled_time, e);
-                            return Ok::<_, warp::Rejection>(
-                                warp::reply::with_status("Invalid date format", warp::http::StatusCode::BAD_REQUEST)
-                            );
-                        }
-                    };
+                    let bson_dt =
+                        match BsonDateTime::parse_rfc3339_str(&updated_post.scheduled_time) {
+                            Ok(dt) => dt,
+                            Err(e) => {
+                                error!(
+                                    "Failed to parse scheduled_time {}: {:?}",
+                                    updated_post.scheduled_time, e
+                                );
+                                return Ok::<_, warp::Rejection>(warp::reply::with_status(
+                                    "Invalid date format",
+                                    warp::http::StatusCode::BAD_REQUEST,
+                                ));
+                            }
+                        };
 
                     let update_doc = doc! {
-                    "$set": {
-                        "title": updated_post.title,
-                        "content": updated_post.content,
-                        "scheduled_time": bson_dt,
-                        "status": updated_post.status,
-                    }
-                };
+                        "$set": {
+                            "title": updated_post.title,
+                            "content": updated_post.content,
+                            "scheduled_time": bson_dt,
+                            "status": updated_post.status,
+                        }
+                    };
 
-                    match posts.update_one(doc! { "_id": object_id }, update_doc).await {
+                    match posts
+                        .update_one(doc! { "_id": object_id }, update_doc)
+                        .await
+                    {
                         Ok(update_result) => {
                             if update_result.matched_count > 0 {
                                 info!("Post with ID {} updated successfully", id);
-                                Ok::<_, warp::Rejection>(warp::reply::with_status("Post updated", warp::http::StatusCode::OK))
+                                Ok::<_, warp::Rejection>(warp::reply::with_status(
+                                    "Post updated",
+                                    warp::http::StatusCode::OK,
+                                ))
                             } else {
                                 error!("No post found with ID {}", id);
-                                Ok::<_, warp::Rejection>(warp::reply::with_status("Post not found", warp::http::StatusCode::NOT_FOUND))
+                                Ok::<_, warp::Rejection>(warp::reply::with_status(
+                                    "Post not found",
+                                    warp::http::StatusCode::NOT_FOUND,
+                                ))
                             }
                         }
                         Err(e) => {
                             error!("Failed to update post with ID {}: {:?}", id, e);
-                            Ok::<_, warp::Rejection>(warp::reply::with_status("Failed to update post", warp::http::StatusCode::INTERNAL_SERVER_ERROR))
+                            Ok::<_, warp::Rejection>(warp::reply::with_status(
+                                "Failed to update post",
+                                warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+                            ))
                         }
                     }
                 }
@@ -202,8 +232,12 @@ async fn main() {
             .with(cors.clone())
     };
 
-
-    warp::serve(schedule_post.or(query_posts).or(delete_post).or(update_post))
-        .run(([0, 0, 0, 0], 8080))
-        .await;
+    warp::serve(
+        schedule_post
+            .or(query_posts)
+            .or(delete_post)
+            .or(update_post),
+    )
+    .run(([0, 0, 0, 0], 8080))
+    .await;
 }
