@@ -28,6 +28,7 @@ jobs:
           cargo doc --target-dir=../target/doc
       - name: Create index.html
         run: |
+          mkdir -p ../target/doc
           echo '<html><head><meta http-equiv="refresh" content="0; url=scheduler/index.html"></head><body></body></html>' > ../target/doc/index.html
       - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.7
