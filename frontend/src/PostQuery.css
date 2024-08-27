@@ -1,0 +1,100 @@
+@import 'SharedStyles.css';
+
+
+.query-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.date-inputs {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.date-input {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.date-input:last-child {
+    margin-right: 0;
+}
+
+.single-day-option {
+    display: flex;
+    align-items: center;
+    margin-top: 8px; /* To create some space between the checkbox and the date input */
+}
+
+.single-day-option input[type="checkbox"] {
+    margin-right: 0.4rem;
+    transform: scale(1.2); /* To slightly increase the size of the checkbox */
+}
+
+.post-list {
+    list-style: none;
+    padding: 0;
+}
+
+.post-item {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.post-actions button {
+    margin-left: 10px;
+}
+
+.update-button {
+    background-color: #28a745;
+}
+
+.update-button:hover {
+    background-color: #218838;
+}
+
+.delete-button {
+    background-color: #dc3545;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
+
+.update-button {
+    background-color: #28a745;
+}
+
+.delete-button {
+    background-color: #dc3545;
+}
+
+@media (max-width: 600px) {
+    .date-inputs {
+        flex-direction: column;
+    }
+
+    .date-input {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .post-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .post-actions {
+        margin-top: 10px;
+    }
+}

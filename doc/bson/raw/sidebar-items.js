@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ErrorKind","RawBson","RawBsonRef","ValueAccessErrorKind"],"struct":["Error","RawArray","RawArrayBuf","RawArrayIter","RawBinaryRef","RawDbPointerRef","RawDocument","RawDocumentBuf","RawElement","RawIter","RawJavaScriptCodeWithScope","RawJavaScriptCodeWithScopeRef","RawRegexRef","ValueAccessError"],"type":["Result","ValueAccessResult"]};

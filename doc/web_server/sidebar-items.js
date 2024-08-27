@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["default_status","main"],"struct":["ParseDateError","Post","PostQueryParams"]};

@@ -1,1 +1,0 @@
-searchState.loadedDescShard("mongodb_internal_macros", 0, "Generates:\nEnables rustdoc links to types that link individually to …")

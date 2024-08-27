@@ -1,0 +1,50 @@
+/target
+# .gitignore
+
+# Node.js / React
+frontend/node_modules/
+frontend/build/
+frontend/.env
+frontend/.next/
+frontend/.cache/
+frontend/.pnp/
+frontend.pnp.js
+frontend/public/static/
+frontend/.DS_Store
+frontend/coverage/
+
+# Yarn / npm
+frontend/yarn-error.log
+frontend/yarn-debug.log*
+frontend/npm-debug.log*
+
+# Rust
+backend/target/
+backend/.cargo/
+backend/Cargo.lock
+backend/config.toml
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor directories and files
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+

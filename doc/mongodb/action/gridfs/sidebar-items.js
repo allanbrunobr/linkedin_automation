@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Delete","Drop","Find","FindOne","OpenDownloadStream","OpenDownloadStreamByName","OpenUploadStream","Rename"]};

@@ -1,0 +1,12 @@
+@import 'SharedStyles.css';
+
+.update-post-form {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 600px) {
+    .update-button {
+        width: 100%;
+    }
+}
