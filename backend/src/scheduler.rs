@@ -106,7 +106,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let title = post.get_str("title").unwrap_or("Untitled").to_string();
             let content = post.get_str("content").unwrap_or("No content provided").to_string();
 
-            if let Err(e) = publish_article(&access_token, &get_profile_id(&access_token).await?, &title, &content).await {
+            if let Err(e) = publish_article(&access_token, &get_profile_id(&access_token, None).await?, &title, &content).await {
                 error!("Error publishing article: {}", e);
             } else {
                 let update = doc! { "$set": { "status": "published" } };
