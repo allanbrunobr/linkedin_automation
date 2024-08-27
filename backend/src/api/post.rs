@@ -41,7 +41,10 @@ pub async fn publish_article(
     base_url: Option<&str>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
-    let url = format!("{}/v2/ugcPosts", base_url.unwrap_or("https://api.linkedin.com"));
+    let url = format!(
+        "{}/v2/ugcPosts",
+        base_url.unwrap_or("https://api.linkedin.com")
+    );
 
     let mut headers = HeaderMap::new();
     headers.insert(AUTHORIZATION, format!("Bearer {}", access_token).parse()?);

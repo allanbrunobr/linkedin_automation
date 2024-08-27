@@ -1,7 +1,7 @@
-use futures_util::StreamExt;
 use crate::config::settings::load_config;
 use api::{connections::get_profile_id, post::publish_article};
 use chrono::{DateTime, FixedOffset, Utc};
+use futures_util::StreamExt;
 use futures_util::TryStreamExt;
 use log::{error, info};
 use mongodb::{
@@ -117,7 +117,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 &access_token,
                 &get_profile_id(&access_token, None).await?,
                 &title,
-                &content, None
+                &content,
+                None,
             )
             .await
             {
@@ -189,12 +190,12 @@ mod tests {
         let now = Utc::now();
         let bson_now = BsonDateTime::from_chrono(now);
         let test_post = doc! {
-        "_id": ObjectId::new(),
-        "title": "Test Post",
-        "content": "Test Content",
-        "scheduled_time": bson_now,
-        "status": "pending"
-    };
+            "_id": ObjectId::new(),
+            "title": "Test Post",
+            "content": "Test Content",
+            "scheduled_time": bson_now,
+            "status": "pending"
+        };
 
         let insert_result = posts.insert_one(test_post.clone()).await.unwrap();
         println!("Insert result: {:?}", insert_result);
@@ -203,9 +204,9 @@ mod tests {
         println!("Number of documents in collection: {}", count);
 
         let filter = doc! {
-        "scheduled_time": { "$lte": bson_now },
-        "status": "pending"
-    };
+            "scheduled_time": { "$lte": bson_now },
+            "status": "pending"
+        };
         println!("Filter: {:?}", filter);
         println!("Inserted document: {:?}", test_post);
 
@@ -219,7 +220,7 @@ mod tests {
                     assert_eq!(doc.get_str("content").unwrap(), "Test Content");
                     assert_eq!(doc.get_str("status").unwrap(), "pending");
                     found = true;
-                },
+                }
                 Err(e) => println!("Error while iterating: {:?}", e),
             }
         }
@@ -259,12 +260,12 @@ mod tests {
             .await;
 
         let test_post = doc! {
-        "_id": ObjectId::new(),
-        "title": "Error Test Post",
-        "content": "Error Test Content",
-        "scheduled_time": Utc::now().to_rfc3339(),
-        "status": "pending"
-    };
+            "_id": ObjectId::new(),
+            "title": "Error Test Post",
+            "content": "Error Test Content",
+            "scheduled_time": Utc::now().to_rfc3339(),
+            "status": "pending"
+        };
 
         posts.insert_one(test_post.clone()).await.unwrap();
 
@@ -276,7 +277,14 @@ mod tests {
 
         let access_token = "mock_token";
         let profile_id = "mock_profile_id";
-        let result = publish_article(access_token, profile_id, title, content, Some(&server.url())).await;
+        let result = publish_article(
+            access_token,
+            profile_id,
+            title,
+            content,
+            Some(&server.url()),
+        )
+        .await;
 
         assert!(result.is_err());
 
