@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Methods exposing a schedule’s configured ordinals for each individual unit of time."><title>TimeUnitSpec in cron - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="cron" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../cron/index.html">cron</a><span class="version">0.12.1</span></h2></div><h2 class="location"><a href="#">TimeUnitSpec</a></h2><div class="sidebar-elems"><section><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.count">count</a></li><li><a href="#tymethod.includes">includes</a></li><li><a href="#tymethod.is_all">is_all</a></li><li><a href="#tymethod.iter">iter</a></li><li><a href="#tymethod.range">range</a></li></ul><h3><a href="#object-safety">Object Safety</a></h3><h3><a href="#implementors">Implementors</a></h3></section><h2><a href="index.html">In crate cron</a></h2></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Trait <a href="index.html">cron</a>::<wbr><a class="trait" href="#">TimeUnitSpec</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/cron/time_unit/mod.rs.html#91-173">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>pub trait TimeUnitSpec {
+    // Required methods
+    fn <a href="#tymethod.includes" class="fn">includes</a>(&amp;self, ordinal: <a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.u32.html">u32</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.bool.html">bool</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.iter" class="fn">iter</a>(&amp;self) -&gt; OrdinalIter&lt;'_&gt;;
+<span class="item-spacer"></span>    fn <a href="#tymethod.range" class="fn">range</a>&lt;R&gt;(&amp;self, range: R) -&gt; OrdinalRangeIter&lt;'_&gt;
+       <span class="where">where R: <a class="trait" href="https://doc.rust-lang.org/1.80.1/core/ops/range/trait.RangeBounds.html" title="trait core::ops::range::RangeBounds">RangeBounds</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.u32.html">u32</a>&gt;</span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.count" class="fn">count</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.u32.html">u32</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.is_all" class="fn">is_all</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.bool.html">bool</a>;
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Methods exposing a schedule’s configured ordinals for each individual unit of time.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>cron::{Schedule,TimeUnitSpec};
+<span class="kw">use </span>std::ops::Bound::{Included,Excluded};
+<span class="kw">use </span>std::str::FromStr;
+
+<span class="kw">let </span>expression = <span class="string">"* * * * * * 2015-2044"</span>;
+<span class="kw">let </span>schedule = Schedule::from_str(expression).expect(<span class="string">"Failed to parse expression."</span>);
+
+<span class="comment">// Membership
+</span><span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, schedule.years().includes(<span class="number">2031</span>));
+<span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, schedule.years().includes(<span class="number">1969</span>));
+
+<span class="comment">// Number of years specified
+</span><span class="macro">assert_eq!</span>(<span class="number">30</span>, schedule.years().count());
+
+<span class="comment">// Iterator
+</span><span class="kw">let </span><span class="kw-2">mut </span>years_iter = schedule.years().iter();
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">2015</span>), years_iter.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">2016</span>), years_iter.next());
+<span class="comment">// ...
+
+// Range Iterator
+</span><span class="kw">let </span><span class="kw-2">mut </span>five_year_plan = schedule.years().range((Included(<span class="number">2017</span>), Excluded(<span class="number">2017 </span>+ <span class="number">5</span>)));
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">2017</span>), five_year_plan.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">2018</span>), five_year_plan.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">2019</span>), five_year_plan.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">2020</span>), five_year_plan.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">2021</span>), five_year_plan.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, five_year_plan.next());</code></pre></div>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.includes" class="method"><a class="src rightside" href="../src/cron/time_unit/mod.rs.html#106">source</a><h4 class="code-header">fn <a href="#tymethod.includes" class="fn">includes</a>(&amp;self, ordinal: <a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.u32.html">u32</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns true if the provided ordinal was included in the schedule spec for the unit of time
+being described.</p>
+<h5 id="example-1"><a class="doc-anchor" href="#example-1">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>cron::{Schedule,TimeUnitSpec};
+<span class="kw">use </span>std::str::FromStr;
+
+<span class="kw">let </span>expression = <span class="string">"* * * * * * 2015-2044"</span>;
+<span class="kw">let </span>schedule = Schedule::from_str(expression).expect(<span class="string">"Failed to parse expression."</span>);
+
+<span class="comment">// Membership
+</span><span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, schedule.years().includes(<span class="number">2031</span>));
+<span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, schedule.years().includes(<span class="number">2004</span>));</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.iter" class="method"><a class="src rightside" href="../src/cron/time_unit/mod.rs.html#126">source</a><h4 class="code-header">fn <a href="#tymethod.iter" class="fn">iter</a>(&amp;self) -&gt; OrdinalIter&lt;'_&gt;</h4></section></summary><div class="docblock"><p>Provides an iterator which will return each included ordinal for this schedule in order from
+lowest to highest.</p>
+<h5 id="example-2"><a class="doc-anchor" href="#example-2">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>cron::{Schedule,TimeUnitSpec};
+<span class="kw">use </span>std::str::FromStr;
+
+<span class="kw">let </span>expression = <span class="string">"* * * * 5-8 * *"</span>;
+<span class="kw">let </span>schedule = Schedule::from_str(expression).expect(<span class="string">"Failed to parse expression."</span>);
+
+<span class="comment">// Iterator
+</span><span class="kw">let </span><span class="kw-2">mut </span>summer = schedule.months().iter();
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">5</span>), summer.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">6</span>), summer.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">7</span>), summer.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">8</span>), summer.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, summer.next());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.range" class="method"><a class="src rightside" href="../src/cron/time_unit/mod.rs.html#143-145">source</a><h4 class="code-header">fn <a href="#tymethod.range" class="fn">range</a>&lt;R&gt;(&amp;self, range: R) -&gt; OrdinalRangeIter&lt;'_&gt;<div class="where">where
+    R: <a class="trait" href="https://doc.rust-lang.org/1.80.1/core/ops/range/trait.RangeBounds.html" title="trait core::ops::range::RangeBounds">RangeBounds</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.u32.html">u32</a>&gt;,</div></h4></section></summary><div class="docblock"><p>Provides an iterator which will return each included ordinal within the specified range.</p>
+<h5 id="example-3"><a class="doc-anchor" href="#example-3">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>cron::{Schedule,TimeUnitSpec};
+<span class="kw">use </span>std::ops::Bound::{Included,Excluded};
+<span class="kw">use </span>std::str::FromStr;
+
+<span class="kw">let </span>expression = <span class="string">"* * * 1,15 * * *"</span>;
+<span class="kw">let </span>schedule = Schedule::from_str(expression).expect(<span class="string">"Failed to parse expression."</span>);
+
+<span class="comment">// Range Iterator
+</span><span class="kw">let </span><span class="kw-2">mut </span>mid_month_paydays = schedule.days_of_month().range((Included(<span class="number">10</span>), Included(<span class="number">20</span>)));
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">15</span>), mid_month_paydays.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, mid_month_paydays.next());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.count" class="method"><a class="src rightside" href="../src/cron/time_unit/mod.rs.html#158">source</a><h4 class="code-header">fn <a href="#tymethod.count" class="fn">count</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.u32.html">u32</a></h4></section></summary><div class="docblock"><p>Returns the number of ordinals included in the associated schedule</p>
+<h5 id="example-4"><a class="doc-anchor" href="#example-4">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>cron::{Schedule,TimeUnitSpec};
+<span class="kw">use </span>std::str::FromStr;
+
+<span class="kw">let </span>expression = <span class="string">"* * * 1,15 * * *"</span>;
+<span class="kw">let </span>schedule = Schedule::from_str(expression).expect(<span class="string">"Failed to parse expression."</span>);
+
+<span class="macro">assert_eq!</span>(<span class="number">2</span>, schedule.days_of_month().count());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.is_all" class="method"><a class="src rightside" href="../src/cron/time_unit/mod.rs.html#172">source</a><h4 class="code-header">fn <a href="#tymethod.is_all" class="fn">is_all</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Checks if this TimeUnitSpec is defined as all possibilities (thus created with a ‘*’, ‘?’ or in the case of weekdays ‘1-7’)</p>
+<h5 id="example-5"><a class="doc-anchor" href="#example-5">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>cron::{Schedule,TimeUnitSpec};
+<span class="kw">use </span>std::str::FromStr;
+
+<span class="kw">let </span>expression = <span class="string">"* * * 1,15 * * *"</span>;
+<span class="kw">let </span>schedule = Schedule::from_str(expression).expect(<span class="string">"Failed to parse expression."</span>);
+
+<span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, schedule.days_of_month().is_all());
+<span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, schedule.months().is_all());</code></pre></div>
+</div></details></div><h2 id="object-safety" class="section-header">Object Safety<a href="#object-safety" class="anchor">§</a></h2><div class="object-safety-info">This trait is <b>not</b> <a href="https://doc.rust-lang.org/1.80.1/reference/items/traits.html#object-safety">object safe</a>.</div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-TimeUnitSpec-for-T" class="impl"><a class="src rightside" href="../src/cron/time_unit/mod.rs.html#175-203">source</a><a href="#impl-TimeUnitSpec-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="trait.TimeUnitSpec.html" title="trait cron::TimeUnitSpec">TimeUnitSpec</a> for T<div class="where">where
+    T: TimeUnitField,</div></h3></section></div><script src="../trait.impl/cron/time_unit/trait.TimeUnitSpec.js" async></script></section></div></main></body></html>

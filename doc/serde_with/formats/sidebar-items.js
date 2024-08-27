@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Flexible","Lowercase","Padded","PreferMany","PreferOne","Strict","Unpadded","Uppercase"],"trait":["Format","Strictness"]};

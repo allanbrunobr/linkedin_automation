@@ -1,0 +1,1 @@
+{"rustc":1209780893969736014,"features":"[]","declared_features":"[\"heapsize\", \"heapsize_impl\", \"nightly\", \"serde\", \"serde_impl\"]","target":1118975273999015696,"profile":17372225396497698887,"path":17050430894654768339,"deps":[],"local":[{"Precalculated":"0.5.6"}],"rustflags":[],"metadata":11673622644101893762,"config":2202906307356721367,"compile_kind":0}

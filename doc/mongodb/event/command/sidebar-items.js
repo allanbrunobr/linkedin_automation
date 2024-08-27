@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CommandEvent"],"struct":["CommandFailedEvent","CommandStartedEvent","CommandSucceededEvent","ConnectionInfo"],"trait":["CommandEventHandler"]};

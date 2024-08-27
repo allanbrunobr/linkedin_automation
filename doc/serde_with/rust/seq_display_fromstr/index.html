@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="De/Serialize sequences using `FromIterator` and `IntoIterator` implementation for it and `Display` and `FromStr` implementation for each element"><title>serde_with::rust::seq_display_fromstr - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="serde_with" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../serde_with/index.html">serde_with</a><span class="version">1.14.0</span></h2></div><h2 class="location"><a href="#">Module seq_display_fromstr</a></h2><div class="sidebar-elems"><section><ul class="block"><li><a href="#functions">Functions</a></li></ul></section><h2><a href="../index.html">In serde_with::rust</a></h2></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../../index.html">serde_with</a>::<wbr><a href="../index.html">rust</a>::<wbr><a class="mod" href="#">seq_display_fromstr</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../../../src/serde_with/rust.rs.html#199">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>De/Serialize sequences using <a href="https://doc.rust-lang.org/1.80.1/core/iter/traits/collect/trait.FromIterator.html" title="trait core::iter::traits::collect::FromIterator"><code>FromIterator</code></a> and <a href="https://doc.rust-lang.org/1.80.1/core/iter/traits/collect/trait.IntoIterator.html" title="trait core::iter::traits::collect::IntoIterator"><code>IntoIterator</code></a> implementation for it and <a href="https://doc.rust-lang.org/1.80.1/core/fmt/trait.Display.html" title="trait core::fmt::Display"><code>Display</code></a> and <a href="https://doc.rust-lang.org/1.80.1/core/str/traits/trait.FromStr.html" title="trait core::str::traits::FromStr"><code>FromStr</code></a> implementation for each element</p>
+<p>This allows to serialize and deserialize collections with elements which can be represented as strings.</p>
+<h3 id="converting-to-serde_as"><a class="doc-anchor" href="#converting-to-serde_as">§</a>Converting to <code>serde_as</code></h3>
+<p>The same functionality can be more clearly expressed via <a href="../../struct.DisplayFromStr.html" title="struct serde_with::DisplayFromStr"><code>DisplayFromStr</code></a> and using the <a href="crate::guide::serde_as"><code>serde_as</code></a> macro.
+Instead of</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[serde(with = <span class="string">"serde_with::rust::seq_display_fromstr"</span>)]
+</span>addresses: BTreeSet&lt;Ipv4Addr&gt;,</code></pre></div>
+<p>you can write:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[serde_as(<span class="kw">as </span>= <span class="string">"BTreeSet&lt;DisplayFromStr&gt;"</span>)]
+</span>addresses: BTreeSet&lt;Ipv4Addr&gt;,</code></pre></div>
+<p>This works for any container type, so also for <code>Vec</code>:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[serde_as(<span class="kw">as </span>= <span class="string">"Vec&lt;DisplayFromStr&gt;"</span>)]
+</span>bs: Vec&lt;bool&gt;,</code></pre></div>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::collections::BTreeSet;
+<span class="kw">use </span>std::net::Ipv4Addr;
+
+<span class="attr">#[derive(Deserialize, Serialize)]
+</span><span class="kw">struct </span>A {
+    <span class="attr">#[serde(with = <span class="string">"serde_with::rust::seq_display_fromstr"</span>)]
+    </span>addresses: BTreeSet&lt;Ipv4Addr&gt;,
+    <span class="attr">#[serde(with = <span class="string">"serde_with::rust::seq_display_fromstr"</span>)]
+    </span>bs: Vec&lt;bool&gt;,
+}
+
+<span class="kw">let </span>v: A = serde_json::from_str(<span class="string">r#"{
+    "addresses": ["192.168.2.1", "192.168.2.2", "192.168.1.1", "192.168.2.2"],
+    "bs": ["true", "false"]
+}"#</span>).unwrap();
+<span class="macro">assert_eq!</span>(v.addresses.len(), <span class="number">3</span>);
+<span class="macro">assert!</span>(v.addresses.contains(<span class="kw-2">&amp;</span>Ipv4Addr::new(<span class="number">192</span>, <span class="number">168</span>, <span class="number">2</span>, <span class="number">1</span>)));
+<span class="macro">assert!</span>(v.addresses.contains(<span class="kw-2">&amp;</span>Ipv4Addr::new(<span class="number">192</span>, <span class="number">168</span>, <span class="number">2</span>, <span class="number">2</span>)));
+<span class="macro">assert!</span>(!v.addresses.contains(<span class="kw-2">&amp;</span>Ipv4Addr::new(<span class="number">192</span>, <span class="number">168</span>, <span class="number">1</span>, <span class="number">2</span>)));
+<span class="macro">assert_eq!</span>(v.bs.len(), <span class="number">2</span>);
+<span class="macro">assert!</span>(v.bs[<span class="number">0</span>]);
+<span class="macro">assert!</span>(!v.bs[<span class="number">1</span>]);
+
+<span class="kw">let </span>x = A {
+    addresses: <span class="macro">vec!</span>[
+        Ipv4Addr::new(<span class="number">127</span>, <span class="number">53</span>, <span class="number">0</span>, <span class="number">1</span>),
+        Ipv4Addr::new(<span class="number">127</span>, <span class="number">53</span>, <span class="number">1</span>, <span class="number">1</span>),
+        Ipv4Addr::new(<span class="number">127</span>, <span class="number">53</span>, <span class="number">0</span>, <span class="number">2</span>)
+    ].into_iter().collect(),
+    bs: <span class="macro">vec!</span>[<span class="bool-val">false</span>, <span class="bool-val">true</span>],
+};
+<span class="macro">assert_eq!</span>(
+    <span class="string">r#"{"addresses":["127.53.0.1","127.53.0.2","127.53.1.1"],"bs":["false","true"]}"#</span>,
+    serde_json::to_string(<span class="kw-2">&amp;</span>x).unwrap()
+);</code></pre></div>
+</div></details><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="fn" href="fn.deserialize.html" title="fn serde_with::rust::seq_display_fromstr::deserialize">deserialize</a></div><div class="desc docblock-short">Deserialize collection T using <a href="https://doc.rust-lang.org/1.80.1/core/iter/traits/collect/trait.FromIterator.html" title="trait core::iter::traits::collect::FromIterator">FromIterator</a> and <a href="https://doc.rust-lang.org/1.80.1/core/str/traits/trait.FromStr.html" title="trait core::str::traits::FromStr">FromStr</a> for each element</div></li><li><div class="item-name"><a class="fn" href="fn.serialize.html" title="fn serde_with::rust::seq_display_fromstr::serialize">serialize</a></div><div class="desc docblock-short">Serialize collection T using <a href="https://doc.rust-lang.org/1.80.1/core/iter/traits/collect/trait.IntoIterator.html" title="trait core::iter::traits::collect::IntoIterator">IntoIterator</a> and <a href="https://doc.rust-lang.org/1.80.1/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a> for each element</div></li></ul></section></div></main></body></html>
