@@ -18,11 +18,14 @@ jobs:
           profile: minimal
           override: true
       - name: Run tests
-        run: cargo test --all
+        run: |
+          cd backend
+          cargo test --all
       - name: Build and generate documentation
         run: |
+          cd backend
           cargo build --release
-          cargo doc --target-dir=target/doc
+          cargo doc --target-dir=../target/doc
       - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
