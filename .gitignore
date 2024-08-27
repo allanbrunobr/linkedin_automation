@@ -19,7 +19,7 @@ frontend/yarn-debug.log*
 frontend/npm-debug.log*
 
 # Rust
-backend/target/
+backend/target/!doc
 backend/.cargo/
 backend/Cargo.lock
 backend/config.toml
