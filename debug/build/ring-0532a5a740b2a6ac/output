@@ -2,7 +2,7 @@ cargo:rerun-if-env-changed=RING_PREGENERATE_ASM
 cargo:rustc-env=RING_CORE_PREFIX=ring_core_0_17_8_
 OPT_LEVEL = Some(0)
 TARGET = Some(x86_64-unknown-linux-gnu)
-OUT_DIR = Some(/home/runner/work/linkedin_automation/linkedin_automation/backend/../target/doc/debug/build/ring-0532a5a740b2a6ac/out)
+OUT_DIR = Some(/home/runner/work/linkedin_automation/linkedin_automation/backend/../docs/debug/build/ring-0532a5a740b2a6ac/out)
 HOST = Some(x86_64-unknown-linux-gnu)
 cargo:rerun-if-env-changed=CC_x86_64-unknown-linux-gnu
 CC_x86_64-unknown-linux-gnu = None
@@ -29,7 +29,7 @@ CFLAGS = None
 cargo:rustc-link-lib=static=ring_core_0_17_8_
 OPT_LEVEL = Some(0)
 TARGET = Some(x86_64-unknown-linux-gnu)
-OUT_DIR = Some(/home/runner/work/linkedin_automation/linkedin_automation/backend/../target/doc/debug/build/ring-0532a5a740b2a6ac/out)
+OUT_DIR = Some(/home/runner/work/linkedin_automation/linkedin_automation/backend/../docs/debug/build/ring-0532a5a740b2a6ac/out)
 HOST = Some(x86_64-unknown-linux-gnu)
 cargo:rerun-if-env-changed=CC_x86_64-unknown-linux-gnu
 CC_x86_64-unknown-linux-gnu = None
@@ -54,7 +54,7 @@ HOST_CFLAGS = None
 cargo:rerun-if-env-changed=CFLAGS
 CFLAGS = None
 cargo:rustc-link-lib=static=ring_core_0_17_8_test
-cargo:rustc-link-search=native=/home/runner/work/linkedin_automation/linkedin_automation/backend/../target/doc/debug/build/ring-0532a5a740b2a6ac/out
+cargo:rustc-link-search=native=/home/runner/work/linkedin_automation/linkedin_automation/backend/../docs/debug/build/ring-0532a5a740b2a6ac/out
 cargo:rerun-if-changed=crypto/fipsmodule/modes/asm/ghash-x86.pl
 cargo:rerun-if-changed=crypto/fipsmodule/modes/asm/ghashv8-armx.pl
 cargo:rerun-if-changed=crypto/fipsmodule/modes/asm/ghash-armv4.pl
