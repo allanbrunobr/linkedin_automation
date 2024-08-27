@@ -28,7 +28,7 @@ jobs:
           cargo doc --no-deps --target-dir=../docs
       - name: Create root index.html
         run: |
-          echo '<meta http-equiv="refresh" content="0; url=scheduler/index.html">' > docs/index.html
+          echo '<meta http-equiv="refresh" content="0; url=doc/scheduler/index.html">' > docs/index.html
       - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
