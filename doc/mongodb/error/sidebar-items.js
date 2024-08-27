@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["RETRYABLE_WRITE_ERROR","TRANSIENT_TRANSACTION_ERROR","UNKNOWN_TRANSACTION_COMMIT_RESULT"],"enum":["ErrorKind","GridFsErrorKind","GridFsFileIdentifier","PartialBulkWriteResult","WriteFailure"],"struct":["BulkWriteError","CommandError","Error","IndexedWriteError","InsertManyError","WriteConcernError","WriteError"],"type":["Result"]};
