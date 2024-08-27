@@ -1,10 +1,6 @@
 use reqwest::Client;
 use reqwest::header::{HeaderMap, AUTHORIZATION, CONTENT_TYPE};
-use log::{info, error};
-use std::path::Path;
-use std::fs::File;
-use std::io::Read;
-
+use log::{info};
 
 /// Publishes an article on LinkedIn using the provided access token and profile ID.
 ///
@@ -37,7 +33,7 @@ use std::io::Read;
 ///
 /// publish_article(access_token, profile_id, title, content).await?;
 /// ```
-pub async fn publish_article(access_token: &str, profile_id: &str, title: &str, _content: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn publish_article(access_token: &str, profile_id: &str, _title: &str, _content: &str) -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
     let url = "https://api.linkedin.com/v2/ugcPosts";
 
