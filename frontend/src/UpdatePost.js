@@ -3,6 +3,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import './UpdatePost.css';
 import './SharedStyles.css';
 
+
+/**
+ * UpdatePost Component - A form component that allows users to update an existing post.
+ *
+ * This component fetches the post data from the `location.state` (passed through React Router) and
+ * populates the form fields with the post's current details. The user can modify the title, content,
+ * and scheduled time of the post. Upon submission, the updated post data is sent to the server.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered UpdatePost component.
+ */
 const UpdatePost = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -11,6 +22,11 @@ const UpdatePost = () => {
     const [content, setContent] = useState('');
     const [scheduledTime, setScheduledTime] = useState('');
 
+    /**
+     * useEffect hook to initialize the form fields with the post data passed via `location.state`.
+     *
+     * If no post data is found in `location.state`, the user is redirected to the homepage.
+     */
     useEffect(() => {
         if (location.state && location.state.post) {
             const postData = location.state.post;
@@ -23,6 +39,11 @@ const UpdatePost = () => {
         }
     }, [location, navigate]);
 
+    /**
+     * Handles form submission by sending the updated post data to the server.
+     *
+     * @param {Event} event - The form submission event.
+     */
     const handleUpdate = (event) => {
         event.preventDefault();
         if (!post) return;

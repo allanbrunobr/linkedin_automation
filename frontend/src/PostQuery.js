@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import './PostQuery.css';
 import './SharedStyles.css';
 
+/**
+ * PostQuery Component - This component provides an interface for querying scheduled posts
+ * based on a date range. Users can search for posts, update them, or delete them.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ */
 const PostQuery = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -11,6 +18,10 @@ const PostQuery = () => {
     const [selectedPost, setSelectedPost] = useState(null);
     const navigate = useNavigate();
 
+    /**
+     * Fetches posts from the backend based on the selected date range.
+     * The posts are formatted before being stored in the state.
+     */
     const fetchPosts = () => {
         const queryEndDate = isSingleDay ? startDate : endDate;
         fetch(`http://localhost:8080/posts?start_date=${startDate}&end_date=${queryEndDate}`)
@@ -43,11 +54,21 @@ const PostQuery = () => {
             .catch(error => console.error('Error fetching posts:', error));
     };
 
+    /**
+     * Handles form submission to fetch posts based on the date range.
+     *
+     * @param {Event} event - The form submission event.
+     */
     const handleFormSubmit = (event) => {
         event.preventDefault();
         fetchPosts();
     };
 
+    /**
+     * Deletes a post based on its ID and refetches the updated list of posts.
+     *
+     * @param {string} id - The ID of the post to be deleted.
+     */
     const deletePost = (id) => {
         fetch(`http://localhost:8080/posts/${id}`, {
             method: 'DELETE',
@@ -59,11 +80,22 @@ const PostQuery = () => {
             .catch(error => console.error('Error deleting post:', error));
     };
 
+    /**
+     * Navigates to the update screen with the selected post's details.
+     *
+     * @param {Object} post - The post object to be updated.
+     */
     const handleUpdateClick = (post) => {
         setSelectedPost(post);
         navigate('/update', { state: { post } });
     };
 
+    /**
+     * Handles the change of the "Single Day" checkbox.
+     * If checked, clears the end date.
+     *
+     * @param {Event} e - The change event.
+     */
     const handleSingleDayChange = (e) => {
         setIsSingleDay(e.target.checked);
         if (e.target.checked) {

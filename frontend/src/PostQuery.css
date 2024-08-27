@@ -24,6 +24,17 @@
     margin-right: 0;
 }
 
+.single-day-option {
+    display: flex;
+    align-items: center;
+    margin-top: 8px; /* To create some space between the checkbox and the date input */
+}
+
+.single-day-option input[type="checkbox"] {
+    margin-right: 0.4rem;
+    transform: scale(1.2); /* To slightly increase the size of the checkbox */
+}
+
 .post-list {
     list-style: none;
     padding: 0;

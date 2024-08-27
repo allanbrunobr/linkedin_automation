@@ -4,14 +4,16 @@ import Picker from '@emoji-mart/react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './SharedStyles.css';
 import './PostSchedulerForm.css';
+
 /**
- * A form component that allows users to schedule a post.
+ * PostSchedulerForm Component - A form component that allows users to schedule a post.
  *
- * The PostSchedulerForm component provides a form with fields for the post title,
- * content, and scheduled time. It also includes an emoji picker for adding emojis to the content.
- * The form data is sent to a server when the form is submitted.
+ * This component provides a form with fields for the post title, content, and scheduled time.
+ * It also includes an emoji picker for adding emojis to the content. The form data is sent to a server
+ * when the form is submitted.
  *
  * @component
+ * @returns {JSX.Element} The rendered PostSchedulerForm component.
  */
 const PostSchedulerForm = () => {
     const [title, setTitle] = useState('');
@@ -19,6 +21,11 @@ const PostSchedulerForm = () => {
     const [scheduledTime, setScheduledTime] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
+    /**
+     * Handles form submission by sending the post data to the server.
+     *
+     * @param {Event} event - The form submission event.
+     */
     const handleSubmit = (event) => {
         event.preventDefault();
         const post = {
@@ -45,6 +52,9 @@ const PostSchedulerForm = () => {
             });
     };
 
+    /**
+     * Clears the form fields, resetting the form to its initial state.
+     */
     const clearForm = () => {
         setTitle('');
         setContent('');
@@ -52,6 +62,11 @@ const PostSchedulerForm = () => {
         setShowEmojiPicker(false);
     };
 
+    /**
+     * Adds an emoji to the post content.
+     *
+     * @param {Object} emoji - The selected emoji object.
+     */
     const addEmoji = (emoji) => {
         setContent(content + emoji.native);
         setShowEmojiPicker(false);
