@@ -2,9 +2,6 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
-    pub client_id: String,
-    pub client_secret: String,
-    pub redirect_uri: String,
     pub access_token: String,
 }
 

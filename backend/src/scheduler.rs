@@ -1,10 +1,14 @@
-use api::{connections::get_profile_id, post::publish_article};
+use futures_util::StreamExt;
 use crate::config::settings::load_config;
-use chrono::{Utc, DateTime, FixedOffset};
-use mongodb::{Client, bson::{doc, Document, DateTime as BsonDateTime}};
-use tokio::time::{self, Duration};
+use api::{connections::get_profile_id, post::publish_article};
+use chrono::{DateTime, FixedOffset, Utc};
 use futures_util::TryStreamExt;
-use log::{info, error};
+use log::{error, info};
+use mongodb::{
+    bson::{doc, DateTime as BsonDateTime, Document},
+    Client,
+};
+use tokio::time::{self, Duration};
 
 mod api;
 mod config;
@@ -94,7 +98,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             info!("Scheduled time from MongoDB: {}", scheduled_time_str);
 
             let scheduled_time = DateTime::parse_from_rfc3339(scheduled_time_str)
-                .map(|dt| dt.with_timezone(&FixedOffset::west_opt(3 * 3600).unwrap()))  // Convert to Brazil time (UTC-3)
+                .map(|dt| dt.with_timezone(&FixedOffset::west_opt(3 * 3600).unwrap())) // Convert to Brazil time (UTC-3)
                 .unwrap_or(local_now);
 
             if scheduled_time > local_now {
@@ -104,17 +108,185 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
 
             let title = post.get_str("title").unwrap_or("Untitled").to_string();
-            let content = post.get_str("content").unwrap_or("No content provided").to_string();
+            let content = post
+                .get_str("content")
+                .unwrap_or("No content provided")
+                .to_string();
 
-            if let Err(e) = publish_article(&access_token, &get_profile_id(&access_token, None).await?, &title, &content).await {
+            if let Err(e) = publish_article(
+                &access_token,
+                &get_profile_id(&access_token, None).await?,
+                &title,
+                &content, None
+            )
+            .await
+            {
                 error!("Error publishing article: {}", e);
             } else {
                 let update = doc! { "$set": { "status": "published" } };
-                posts.update_one(doc! {"_id": post.get_object_id("_id").unwrap()}, update).await?;
+                posts
+                    .update_one(doc! {"_id": post.get_object_id("_id").unwrap()}, update)
+                    .await?;
                 info!("Post published successfully: {}", title);
             }
         }
 
         time::sleep(Duration::from_secs(20)).await;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use mockito::Server;
+    use mongodb::bson::oid::ObjectId;
+    use std::sync::Once;
+
+    static INIT: Once = Once::new();
+
+    /// Initializes the test environment by configuring the logger.
+    ///
+    /// This function is called once at the beginning of the test suite to ensure that the logger is properly configured for testing purposes.
+    ///
+    /// # Arguments
+    ///
+    /// This function does not take any arguments.
+    ///
+    /// # Returns
+    ///
+    /// This function does not return any value.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// initialize();
+    /// ```
+    fn initialize() {
+        INIT.call_once(|| {
+            let _ = env_logger::builder().is_test(true).try_init();
+        });
+    }
+
+    /// Creates a mock MongoDB client for testing purposes.
+    ///
+    /// This function sets up an in-memory MongoDB instance that can be used for testing without affecting a real database.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing a `mongodb::Client` if successful, or an error if the client creation fails.
+    async fn create_mock_mongo_client() -> Result<Client, mongodb::error::Error> {
+        Client::with_uri_str("mongodb://localhost:27017").await
+    }
+
+    #[tokio::test]
+    async fn test_retrieve_scheduled_posts() {
+        initialize();
+
+        let client = create_mock_mongo_client().await.unwrap();
+        let db = client.database("test_lkdin-posts");
+        let posts: mongodb::Collection<Document> = db.collection("posts");
+
+        let now = Utc::now();
+        let bson_now = BsonDateTime::from_chrono(now);
+        let test_post = doc! {
+        "_id": ObjectId::new(),
+        "title": "Test Post",
+        "content": "Test Content",
+        "scheduled_time": bson_now,
+        "status": "pending"
+    };
+
+        let insert_result = posts.insert_one(test_post.clone()).await.unwrap();
+        println!("Insert result: {:?}", insert_result);
+
+        let count = posts.count_documents(doc! {}).await.unwrap();
+        println!("Number of documents in collection: {}", count);
+
+        let filter = doc! {
+        "scheduled_time": { "$lte": bson_now },
+        "status": "pending"
+    };
+        println!("Filter: {:?}", filter);
+        println!("Inserted document: {:?}", test_post);
+
+        let mut cursor = posts.find(filter.clone()).await.unwrap();
+        let mut found = false;
+        while let Some(doc_result) = cursor.next().await {
+            match doc_result {
+                Ok(doc) => {
+                    println!("Found document: {:?}", doc);
+                    assert_eq!(doc.get_str("title").unwrap(), "Test Post");
+                    assert_eq!(doc.get_str("content").unwrap(), "Test Content");
+                    assert_eq!(doc.get_str("status").unwrap(), "pending");
+                    found = true;
+                },
+                Err(e) => println!("Error while iterating: {:?}", e),
+            }
+        }
+
+        assert!(found, "No matching documents were found");
+    }
+
+    /// Tests error handling during post publication.
+    ///
+    /// This test verifies that the scheduler correctly handles errors that occur during the publication process.
+    ///
+    /// # Steps
+    ///
+    /// 1. Initializes the test environment.
+    /// 2. Creates a mock MongoDB client and a mock LinkedIn API server that returns an error.
+    /// 3. Inserts a test post into the database.
+    /// 4. Attempts to publish the post.
+    /// 5. Verifies that the post status remains "pending" in the database after a failed publication attempt.
+    ///
+    /// # Panics
+    ///
+    /// This test will panic if the assertions fail, indicating that error handling during publication is not working as expected.
+    #[tokio::test]
+    async fn test_publication_error_handling() {
+        initialize();
+
+        let client = create_mock_mongo_client().await.unwrap();
+        let db = client.database("test_lkdin-posts");
+        let posts: mongodb::Collection<Document> = db.collection("posts");
+
+        let mut server = Server::new_async().await;
+        let mock = server
+            .mock("POST", "/v2/ugcPosts")
+            .with_status(500)
+            .with_body("Internal Server Error")
+            .create_async()
+            .await;
+
+        let test_post = doc! {
+        "_id": ObjectId::new(),
+        "title": "Error Test Post",
+        "content": "Error Test Content",
+        "scheduled_time": Utc::now().to_rfc3339(),
+        "status": "pending"
+    };
+
+        posts.insert_one(test_post.clone()).await.unwrap();
+
+        let filter = doc! { "status": "pending" };
+        let retrieved_post = posts.find_one(filter).await.unwrap().unwrap();
+
+        let title = retrieved_post.get_str("title").unwrap();
+        let content = retrieved_post.get_str("content").unwrap();
+
+        let access_token = "mock_token";
+        let profile_id = "mock_profile_id";
+        let result = publish_article(access_token, profile_id, title, content, Some(&server.url())).await;
+
+        assert!(result.is_err());
+
+        let updated_post = posts
+            .find_one(doc! {"_id": retrieved_post.get_object_id("_id").unwrap()})
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(updated_post.get_str("status").unwrap(), "pending");
+
+        mock.assert_async().await;
     }
 }
