@@ -26,9 +26,12 @@ jobs:
           cd backend
           cargo build --release
           cargo doc --target-dir=../target/doc
+      - name: Create index.html
+        run: |
+          echo '<html><head><meta http-equiv="refresh" content="0; url=scheduler/index.html"></head><body></body></html>' > ../target/doc/index.html
       - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
           branch: gh-pages
-          folder: target/doc
+          folder: doc
           token: ${{ secrets.GH_PAT }}
