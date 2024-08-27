@@ -26,9 +26,16 @@ jobs:
           cd backend
           cargo build --release
           cargo doc --target-dir=../target/doc
+      - name: Move documentation to gh-pages branch
+        run: |
+          git checkout gh-pages
+          git mv target/doc .
+          git add .
+          git commit -m "Update documentation"
+          git push
       - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
           branch: gh-pages
-          folder: target/doc
+          folder: .
           token: ${{ secrets.GH_PAT }}
