@@ -1,5 +1,4 @@
-name: Generate Cargo Docs
-
+name: Generate Cargo Docs and Run Tests
 on:
   push:
     branches:
@@ -7,9 +6,8 @@ on:
   pull_request:
     branches:
       - master
-
 jobs:
-  generate-docs:
+  generate-docs-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,6 +17,8 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
+      - name: Run tests
+        run: cargo test --all
       - name: Build and generate documentation
         run: |
           cargo build --release
