@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["error"],"struct":["OwnedScheduleIterator","Schedule","ScheduleIterator"],"trait":["TimeUnitSpec"]};

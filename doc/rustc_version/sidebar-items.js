@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Channel","Error"],"fn":["version","version_meta","version_meta_for"],"struct":["Version","VersionMeta"],"type":["Result"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CollectionType"],"struct":["CollectionSpecification","CollectionSpecificationInfo","CreateIndexResult","CreateIndexesResult","DatabaseSpecification","DeleteResult","InsertManyResult","InsertOneResult","SummaryBulkWriteResult","UpdateResult","VerboseBulkWriteResult"]};

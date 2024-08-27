@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["form"],"struct":["FormData","FormOptions","Part"]};

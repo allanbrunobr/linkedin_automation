@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["FilesCollectionDocument","GridFsBucket","GridFsDownloadStream","GridFsUploadStream"]};

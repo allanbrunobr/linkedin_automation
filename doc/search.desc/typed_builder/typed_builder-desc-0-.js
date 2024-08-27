@@ -1,1 +1,0 @@
-searchState.loadedDescShard("typed_builder", 0, "<code>TypedBuilder</code> is not a real type - deriving it will …")
