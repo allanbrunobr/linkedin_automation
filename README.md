@@ -127,8 +127,8 @@ db.createCollection("posts", {
                     description: "Content of the post"
                 },
                 scheduled_time: {
-                    bsonType: "date",
-                    description: "Scheduled time for the post"
+                    bsonType: "long",
+                    description: "Scheduled time for the post in milisseconds"
                 },
                 status: {
                     bsonType: "string",
