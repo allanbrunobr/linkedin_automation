@@ -342,10 +342,12 @@
 <a href="#342" id="342">342</a>
 <a href="#343" id="343">343</a>
 <a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::config::settings::load_config;
 <span class="kw">use </span>api::{connections::get_profile_id, post::publish_article};
-<span class="kw">use </span>chrono::{DateTime, FixedOffset, TimeZone, Utc};
-<span class="kw">use </span>futures_util::StreamExt;
+<span class="kw">use </span>chrono::{TimeZone, Utc};
+<span class="kw">use </span>config::settings::get_local_time;
 <span class="kw">use </span>futures_util::TryStreamExt;
 <span class="kw">use </span>log::{error, info};
 <span class="kw">use </span>mongodb::{
@@ -429,8 +431,8 @@
 
     <span class="kw">loop </span>{
         <span class="kw">let </span>now = Utc::now();
-        <span class="kw">let </span>brazil_offset = FixedOffset::west_opt(<span class="number">3 </span>* <span class="number">3600</span>).unwrap();
-        <span class="kw">let </span>local_now = now.with_timezone(<span class="kw-2">&amp;</span>brazil_offset);
+
+        <span class="kw">let </span>local_now = get_local_time(now)<span class="question-mark">?</span>;
         <span class="macro">info!</span>(<span class="string">"Checking posts at local time: {}"</span>, local_now);
 
         <span class="kw">let </span>now_millis = local_now.timestamp_millis();
@@ -440,7 +442,8 @@
 
         <span class="kw">while let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(post)) = cursor.try_next().<span class="kw">await </span>{
             <span class="kw">let </span>scheduled_time_millis = post.get_i64(<span class="string">"scheduled_time"</span>).unwrap_or(<span class="number">0</span>);
-            <span class="kw">let </span>scheduled_time = brazil_offset.timestamp_millis(scheduled_time_millis);
+            <span class="kw">let </span>scheduled_time =
+                get_local_time(Utc.timestamp_millis_opt(scheduled_time_millis).unwrap())<span class="question-mark">?</span>;
 
             <span class="macro">info!</span>(<span class="string">"Scheduled time from MongoDB: {}"</span>, scheduled_time);
 
@@ -463,7 +466,7 @@
                 <span class="kw-2">&amp;</span>content,
                 <span class="prelude-val">None</span>,
             )
-                .<span class="kw">await
+            .<span class="kw">await
             </span>{
                 <span class="macro">error!</span>(<span class="string">"Error publishing article: {}"</span>, e);
             } <span class="kw">else </span>{
@@ -485,6 +488,7 @@
     <span class="kw">use </span>mockito::Server;
     <span class="kw">use </span>mongodb::bson::oid::ObjectId;
     <span class="kw">use </span>std::sync::Once;
+    <span class="kw">use </span>futures_util::StreamExt;
 
     <span class="kw">static </span>INIT: Once = Once::new();
 
