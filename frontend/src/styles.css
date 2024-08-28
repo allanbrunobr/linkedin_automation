@@ -1,0 +1,238 @@
+/* App.css */
+.App {
+    text-align: center;
+}
+
+.App-logo {
+    height: 40vmin;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .App-logo {
+        animation: App-logo-spin infinite 20s linear;
+    }
+}
+
+.App-header {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+
+.App-link {
+    color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Navbar Styles */
+.navbar {
+    width: 100%;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.navbar-nav {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.nav-item:hover {
+    color: #0056b3;
+}
+
+/* SharedStyles.css */
+.form-container {
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: #f8f9fa;
+    color: #000;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 16px;
+}
+
+.form-button:hover {
+    background-color: #0056b3;
+}
+
+/* PostQuery.css */
+.query-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.date-inputs {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.date-input {
+    flex: 1;
+    margin-right: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.date-input:last-child {
+    margin-right: 0;
+}
+
+.single-day-option {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    align-self: flex-start;
+}
+
+.single-day-option input[type="checkbox"] {
+    margin-right: 8px;
+    margin-bottom: 0;
+}
+
+.single-day-option label {
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+.post-list {
+    list-style: none;
+    padding: 0;
+}
+
+.post-item {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.post-actions button {
+    margin-left: 10px;
+}
+
+.update-button,
+.delete-button {
+    background-color: #28a745;
+}
+
+.update-button:hover {
+    background-color: #218838;
+}
+
+.delete-button {
+    background-color: #dc3545;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
+
+@media (max-width: 600px) {
+    .date-inputs {
+        flex-direction: column;
+    }
+
+    .date-input {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .post-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .post-actions {
+        margin-top: 10px;
+    }
+}
+
+/* UpdatePost.css */
+.update-post-form {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 600px) {
+    .update-button {
+        width: 100%;
+    }
+}

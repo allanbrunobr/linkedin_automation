@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './PostQuery.css';
-import './SharedStyles.css';
+import './styles.css';
 
 /**
  * PostQuery Component - This component provides an interface for querying scheduled posts
@@ -18,6 +17,10 @@ const PostQuery = () => {
     const [selectedPost, setSelectedPost] = useState(null);
     const navigate = useNavigate();
 
+    const formatDate = (milliseconds) => {
+        const date = new Date(milliseconds);
+        return date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    };
     /**
      * Fetches posts from the backend based on the selected date range.
      * The posts are formatted before being stored in the state.
@@ -104,8 +107,8 @@ const PostQuery = () => {
     };
 
     return (
-        <div className="form-container post-query-container">
-            <h1 className="form-title">Query Scheduled Posts</h1>
+        <div className="form-container">
+            <h2 className="form-title">Query Scheduled Posts</h2>
             <form onSubmit={handleFormSubmit} className="query-form">
                 <div className="form-group date-inputs">
                     <div className="date-input">
@@ -150,7 +153,7 @@ const PostQuery = () => {
                             <li key={post._id} className="post-item">
                                 <div className="post-content">
                                     <h3>{post.title}</h3>
-                                    <p>{post.scheduled_time}</p>
+                                    <p>{formatDate(post.scheduled_time)}</p>
                                 </div>
                                 <div className="post-actions">
                                     <button onClick={() => handleUpdateClick(post)}

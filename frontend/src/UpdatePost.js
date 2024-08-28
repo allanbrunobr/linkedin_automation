@@ -1,19 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import './UpdatePost.css';
-import './SharedStyles.css';
 
-
-/**
- * UpdatePost Component - A form component that allows users to update an existing post.
- *
- * This component fetches the post data from the `location.state` (passed through React Router) and
- * populates the form fields with the post's current details. The user can modify the title, content,
- * and scheduled time of the post. Upon submission, the updated post data is sent to the server.
- *
- * @component
- * @returns {JSX.Element} The rendered UpdatePost component.
- */
 const UpdatePost = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -22,38 +9,46 @@ const UpdatePost = () => {
     const [content, setContent] = useState('');
     const [scheduledTime, setScheduledTime] = useState('');
 
-    /**
-     * useEffect hook to initialize the form fields with the post data passed via `location.state`.
-     *
-     * If no post data is found in `location.state`, the user is redirected to the homepage.
-     */
+    const formatDate = (timestamp) => {
+        const date = new Date(timestamp);
+
+        // Extração de partes da data e formatação
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
     useEffect(() => {
         if (location.state && location.state.post) {
             const postData = location.state.post;
             setPost(postData);
             setTitle(postData.title);
             setContent(postData.content);
-            setScheduledTime(new Date(postData.scheduled_time).toISOString().slice(0, 16));
+            setScheduledTime(formatDate(postData.scheduled_time));
         } else {
             navigate('/');
         }
     }, [location, navigate]);
 
-    /**
-     * Handles form submission by sending the updated post data to the server.
-     *
-     * @param {Event} event - The form submission event.
-     */
     const handleUpdate = (event) => {
         event.preventDefault();
         if (!post) return;
 
+        const formattedDate = scheduledTime.replace('T', ' ');
+
+
         const updatedPost = {
             title,
             content,
-            scheduled_time: new Date(scheduledTime).toISOString(),
+            scheduled_time: formattedDate,
             status: post.status,
         };
+
+        console.log("Sending updated post data:", updatedPost);
 
         fetch(`http://localhost:8080/posts/${post._id}`, {
             method: 'PUT',

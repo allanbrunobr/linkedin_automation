@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './SharedStyles.css';
-import './PostSchedulerForm.css';
+import './styles.css';
+
 
 /**
  * PostSchedulerForm Component - A form component that allows users to schedule a post.
@@ -28,10 +28,12 @@ const PostSchedulerForm = () => {
      */
     const handleSubmit = (event) => {
         event.preventDefault();
+        const formattedDate = scheduledTime.replace('T', ' ');
+
         const post = {
             title,
             content,
-            scheduled_time: new Date(scheduledTime).toISOString(),
+            scheduled_time: formattedDate,
             status: 'pending',
         };
 
@@ -109,7 +111,7 @@ const PostSchedulerForm = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="scheduledTime">Scheduled Time:</label>
+                    <label htmlFor="scheduledTime">Scheduled Time (Brazil Time - UTC-3):</label>
                     <input
                         type="datetime-local"
                         id="scheduledTime"
