@@ -178,6 +178,51 @@ mod tests {
         Client::with_uri_str("mongodb://localhost:27017").await
     }
 
+    /// Tests the retrieval of scheduled posts from a MongoDB collection.
+    ///
+    /// This asynchronous test function performs the following steps:
+    ///
+    /// 1. **Initialization**: Calls the `initialize` function to set up the test environment,
+    ///    which typically includes configuring logging or other necessary setups for testing.
+    ///
+    /// 2. **MongoDB Client Setup**: Creates a mock MongoDB client using the `create_mock_mongo_client`
+    ///    function. This client is connected to a test database (`test_lkdin-posts`) to ensure that
+    ///    the test does not affect the production data.
+    ///
+    /// 3. **Document Insertion**: Inserts a test post document into the `posts` collection.
+    ///    The document includes a title, content, scheduled time (current UTC time), and a status of "pending".
+    ///
+    /// 4. **Document Count Check**: Counts the number of documents in the collection after insertion
+    ///    to ensure the test setup is correct.
+    ///
+    /// 5. **Document Retrieval**: Queries the `posts` collection to find documents that have a `scheduled_time`
+    ///    less than or equal to the current time and a status of "pending". This simulates the typical behavior
+    ///    of retrieving posts that are scheduled to be published.
+    ///
+    /// 6. **Assertion**: Iterates over the retrieved documents to find a match with the inserted test post.
+    ///    It asserts that the title, content, and status of the retrieved document match the inserted values.
+    ///    The test will fail if no matching document is found or if the retrieved document's fields do not match.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if:
+    ///
+    /// - The MongoDB client cannot be created.
+    /// - The document insertion fails.
+    /// - The document retrieval process encounters an error.
+    /// - No matching documents are found after the retrieval query.
+    ///
+    /// # Example
+    ///
+    /// To run this test, use the following command:
+    ///
+    /// ```bash
+    /// cargo test -- --test-threads=1
+    /// ```
+    ///
+    /// The test will output information about the insertion result, the number of documents in the collection,
+    /// and details about the retrieved document(s).
+    ///
     #[tokio::test]
     async fn test_retrieve_scheduled_posts() {
         initialize();
