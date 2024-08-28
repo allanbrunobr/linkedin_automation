@@ -14,6 +14,11 @@ use warp::reject::Reject;
 use warp::Filter;
 use warp::http::Method;
 
+
+/// Structure representing a scheduled post.
+///
+/// The post includes a title, content, and a scheduled time in string format (`YYYY-MM-DD HH:MM`).
+/// The status of the post is set to "pending" by default.
 #[derive(Debug, Deserialize, Serialize)]
 struct Post {
     title: String,
@@ -23,12 +28,16 @@ struct Post {
     status: String,
 }
 
+/// Structure to handle query parameters in the post query route.
+///
+/// The parameters include a start date and an end date to filter the scheduled posts.
 #[derive(Debug, Deserialize)]
 struct PostQueryParams {
     start_date: String,
     end_date: String,
 }
 
+/// Custom error structure for handling date parsing errors.
 #[derive(Debug)]
 struct ParseDateError;
 
@@ -39,14 +48,67 @@ impl fmt::Display for ParseDateError {
 }
 
 impl Reject for ParseDateError {}
+
+/// Function to provide the default status for a post, which is "pending".
 fn default_status() -> String {
     "pending".to_string()
 }
 
+/// The main entry point for the LinkedIn post scheduler API server.
+/// This function sets up and runs the server that handles scheduling, updating,
+/// querying, and deleting posts using MongoDB as the backend database.
+///
+/// # Functionality
+///
+/// 1. **Logging Initialization**: Initializes the logging environment using `env_logger`
+///    to provide detailed runtime information for monitoring and debugging.
+///
+/// 2. **MongoDB Connection**: Establishes a connection to a MongoDB database,
+///    specifically targeting the `lkdin-posts` database and the `posts` collection,
+///    where scheduled posts are stored.
+///
+/// 3. **CORS Configuration**: Configures Cross-Origin Resource Sharing (CORS) to allow
+///    the frontend (running on a different origin) to communicate with this backend server,
+///    enabling HTTP methods such as GET, POST, PUT, and DELETE.
+///
+/// 4. **Routing Setup**: Sets up the various HTTP routes using the Warp framework:
+///    - `POST /schedule`: Schedule a new post by inserting it into the MongoDB collection.
+///    - `GET /posts`: Query scheduled posts within a specified date range.
+///    - `PUT /posts/{id}`: Update an existing post by its ID.
+///    - `DELETE /posts/{id}`: Delete a post by its ID.
+///
+/// 5. **Server Execution**: The server is started and listens on `http://localhost:8080/`,
+///    serving the defined routes with the CORS configuration.
+///
+/// # Errors
+///
+/// This function will terminate with an error in the following situations:
+///
+/// - If the connection to the MongoDB database fails.
+/// - If the server fails to start due to issues such as port conflicts or other I/O errors.
+///
+/// # Example
+///
+/// To run the server, simply execute the binary. Ensure that MongoDB is running
+/// and accessible at the configured URI (`mongodb://localhost:27017` by default).
+///
+/// ```bash
+/// cargo run
+/// ```
+///
+/// Once the server is running, you can interact with it using tools like `curl` or Postman,
+/// or through a frontend application that communicates with this backend.
+///
+/// # Returns
+///
+/// This function is asynchronous and returns a `Result<(), Box<dyn std::error::Error>>`.
+/// It will return `Ok(())` if the server runs successfully, or an `Err` if an error occurs during setup or execution.
 #[tokio::main]
 async fn main() {
+    // Initialize the logger with a default level of "info".
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
+    // Create a MongoDB client and connect to the "lkdin-posts" database.
     let mongo_client = Client::with_uri_str("mongodb://localhost:27017")
         .await
         .unwrap();
@@ -55,6 +117,7 @@ async fn main() {
 
     info!("Server running on http://localhost:8080/");
 
+    // Configure CORS to allow any origin, and specific HTTP methods and headers.
     let cors = warp::cors()
         .allow_any_origin()
         .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE])
@@ -63,6 +126,9 @@ async fn main() {
 
     info!("CORS configured.");
 
+    // Define the routes for the API endpoints.
+
+    // Route to schedule a new post.
     let schedule_post = {
         let posts = Arc::clone(&posts);
         warp::post()
@@ -104,6 +170,7 @@ async fn main() {
             .with(cors.clone())
     };
 
+    // Route to query posts within a specified date range.
     let query_posts = {
         let posts = Arc::clone(&posts);
         warp::get()
@@ -146,6 +213,7 @@ async fn main() {
             .with(cors.clone())
     };
 
+    // Route to delete a post by its ID.
     let delete_post = {
         let posts = Arc::clone(&posts);
         warp::delete()
@@ -164,6 +232,7 @@ async fn main() {
             .with(cors.clone())
     };
 
+    // Route to update a post by its ID.
     let update_post = {
         let posts = Arc::clone(&posts);
         warp::put()
@@ -238,7 +307,7 @@ async fn main() {
     };
 
 
-
+    // Start the server on port 8080, serving the defined routes with CORS configuration.
     warp::serve(
         schedule_post
             .or(query_posts)
