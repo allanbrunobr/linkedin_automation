@@ -63,6 +63,18 @@ client_secret = "YOUR_CLIENT_SECRET"
 redirect_uri = "http://localhost:3000/callback"
 access_token = "YOUR_ACCESS_TOKEN"
 ```
+### Environment Variables
+
+In addition to the `config.toml` file, this project requires an environment variable to be set:
+
+- **`TIMEZONE_OFFSET`**: This variable is mandatory and should be set to the number of hours offset from UTC for your timezone. For example, for Brazil Standard Time (UTC-3), you would set it to `-3`.
+
+You can set this variable in a `.env` file in the root of your backend directory:
+
+```plaintext
+TIMEZONE_OFFSET=-3
+```
+
 
 ### Obtaining a LinkedIn Access Token
 
@@ -115,8 +127,8 @@ db.createCollection("posts", {
                     description: "Content of the post"
                 },
                 scheduled_time: {
-                    bsonType: "date",
-                    description: "Scheduled time for the post"
+                    bsonType: "long",
+                    description: "Scheduled time for the post in milisseconds"
                 },
                 status: {
                     bsonType: "string",
