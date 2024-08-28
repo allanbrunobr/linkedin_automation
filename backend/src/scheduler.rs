@@ -142,6 +142,7 @@ mod tests {
     use mockito::Server;
     use mongodb::bson::oid::ObjectId;
     use std::sync::Once;
+    use futures_util::StreamExt;
 
     static INIT: Once = Once::new();
 
