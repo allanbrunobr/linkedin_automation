@@ -1,6 +1,6 @@
 use crate::config::settings::load_config;
 use api::{connections::get_profile_id, post::publish_article};
-use chrono::{DateTime, FixedOffset, Utc};
+use chrono::{DateTime, FixedOffset, TimeZone, Utc};
 use futures_util::StreamExt;
 use futures_util::TryStreamExt;
 use log::{error, info};
@@ -85,24 +85,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     loop {
         let now = Utc::now();
-        let local_now = now.with_timezone(&FixedOffset::west_opt(3 * 3600).unwrap()); // Convert to Brazil time (UTC-3)
+        let brazil_offset = FixedOffset::west_opt(3 * 3600).unwrap();
+        let local_now = now.with_timezone(&brazil_offset);
         info!("Checking posts at local time: {}", local_now);
 
-        let bson_now = BsonDateTime::from_millis(now.timestamp_millis());
+        let now_millis = local_now.timestamp_millis();
 
-        let filter = doc! { "scheduled_time": { "$lte": bson_now }, "status": "pending" };
+        let filter = doc! { "scheduled_time": { "$lte": now_millis }, "status": "pending" };
         let mut cursor = posts.find(filter).await?;
 
         while let Ok(Some(post)) = cursor.try_next().await {
-            let scheduled_time_str = post.get_str("scheduled_time").unwrap_or("");
-            info!("Scheduled time from MongoDB: {}", scheduled_time_str);
+            let scheduled_time_millis = post.get_i64("scheduled_time").unwrap_or(0);
+            let scheduled_time = brazil_offset.timestamp_millis(scheduled_time_millis);
 
-            let scheduled_time = DateTime::parse_from_rfc3339(scheduled_time_str)
-                .map(|dt| dt.with_timezone(&FixedOffset::west_opt(3 * 3600).unwrap())) // Convert to Brazil time (UTC-3)
-                .unwrap_or(local_now);
+            info!("Scheduled time from MongoDB: {}", scheduled_time);
 
             if scheduled_time > local_now {
-                let delay_duration = scheduled_time - local_now;
+                let delay_duration = scheduled_time.signed_duration_since(local_now);
                 info!("Delaying until scheduled time: {}", scheduled_time);
                 time::sleep(Duration::from_secs(delay_duration.num_seconds() as u64)).await;
             }
@@ -120,7 +119,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 &content,
                 None,
             )
-            .await
+                .await
             {
                 error!("Error publishing article: {}", e);
             } else {
