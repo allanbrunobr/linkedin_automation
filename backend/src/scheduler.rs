@@ -5,7 +5,7 @@ use config::settings::get_local_time;
 use futures_util::TryStreamExt;
 use log::{error, info};
 use mongodb::{
-    bson::{doc, Document},
+    bson::{doc, DateTime as BsonDateTime, Document},
     Client,
 };
 use tokio::time::{self, Duration};
