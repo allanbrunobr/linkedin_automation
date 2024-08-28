@@ -1,11 +1,11 @@
 use crate::config::settings::load_config;
 use api::{connections::get_profile_id, post::publish_article};
-use chrono::{DateTime, FixedOffset, TimeZone, Utc};
-use futures_util::StreamExt;
+use chrono::{TimeZone, Utc};
+use config::settings::get_local_time;
 use futures_util::TryStreamExt;
 use log::{error, info};
 use mongodb::{
-    bson::{doc, DateTime as BsonDateTime, Document},
+    bson::{doc, Document},
     Client,
 };
 use tokio::time::{self, Duration};
@@ -85,8 +85,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     loop {
         let now = Utc::now();
-        let brazil_offset = FixedOffset::west_opt(3 * 3600).unwrap();
-        let local_now = now.with_timezone(&brazil_offset);
+
+        let local_now = get_local_time(now)?;
         info!("Checking posts at local time: {}", local_now);
 
         let now_millis = local_now.timestamp_millis();
@@ -96,7 +96,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         while let Ok(Some(post)) = cursor.try_next().await {
             let scheduled_time_millis = post.get_i64("scheduled_time").unwrap_or(0);
-            let scheduled_time = brazil_offset.timestamp_millis(scheduled_time_millis);
+            let scheduled_time =
+                get_local_time(Utc.timestamp_millis_opt(scheduled_time_millis).unwrap())?;
 
             info!("Scheduled time from MongoDB: {}", scheduled_time);
 
@@ -119,7 +120,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 &content,
                 None,
             )
-                .await
+            .await
             {
                 error!("Error publishing article: {}", e);
             } else {
