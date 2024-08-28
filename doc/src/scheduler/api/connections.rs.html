@@ -174,10 +174,25 @@
 <a href="#174" id="174">174</a>
 <a href="#175" id="175">175</a>
 <a href="#176" id="176">176</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>reqwest::Client;
-<span class="kw">use </span>reqwest::header::{HeaderMap, AUTHORIZATION};
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>reqwest::header::{HeaderMap, AUTHORIZATION};
+<span class="kw">use </span>reqwest::Client;
 <span class="kw">use </span>serde_json::Value;
-
 
 <span class="doccomment">/// Retrieves the LinkedIn profile ID of the authenticated user.
 ///
@@ -208,18 +223,21 @@
 /// let profile_id = get_profile_id(&amp;access_token).await?;
 /// println!("Profile ID: {}", profile_id);
 /// ```
-</span><span class="kw">pub async fn </span>get_profile_id(access_token: <span class="kw-2">&amp;</span>str, base_url: <span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;String, Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+</span><span class="kw">pub async fn </span>get_profile_id(
+    access_token: <span class="kw-2">&amp;</span>str,
+    base_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;String, Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
     <span class="kw">let </span>client = Client::new();
-    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/v2/userinfo"</span>, base_url.unwrap_or_else(|| <span class="string">"https://api.linkedin.com"</span>.to_string()));
+    <span class="kw">let </span>url = <span class="macro">format!</span>(
+        <span class="string">"{}/v2/userinfo"</span>,
+        base_url.unwrap_or_else(|| <span class="string">"https://api.linkedin.com"</span>.to_string())
+    );
 
     <span class="kw">let </span><span class="kw-2">mut </span>headers = HeaderMap::new();
     headers.insert(AUTHORIZATION, <span class="macro">format!</span>(<span class="string">"Bearer {}"</span>, access_token).parse()<span class="question-mark">?</span>);
 
     <span class="macro">println!</span>(<span class="string">"Sending request to {}"</span>, url);
-    <span class="kw">let </span>response = client.get(url)
-        .headers(headers)
-        .send()
-        .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>response = client.get(url).headers(headers).send().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="macro">println!</span>(<span class="string">"Response status: {}"</span>, response.status());
 
@@ -229,7 +247,10 @@
 
         <span class="kw">let </span>profile_id = profile_info[<span class="string">"sub"</span>].as_str().unwrap_or(<span class="string">""</span>).to_string();
         <span class="kw">if </span>profile_id.is_empty() {
-            <span class="prelude-val">Err</span>(Box::new(std::io::Error::new(std::io::ErrorKind::Other, <span class="string">"Profile ID not found"</span>)))
+            <span class="prelude-val">Err</span>(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                <span class="string">"Profile ID not found"</span>,
+            )))
         } <span class="kw">else </span>{
             <span class="macro">println!</span>(<span class="string">"Profile ID: {}"</span>, profile_id);
             <span class="prelude-val">Ok</span>(profile_id)
@@ -237,7 +258,10 @@
     } <span class="kw">else </span>{
         <span class="kw">let </span>error_text = response.text().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">println!</span>(<span class="string">"Failed to retrieve user info: {:?}"</span>, error_text);
-        <span class="prelude-val">Err</span>(Box::new(std::io::Error::new(std::io::ErrorKind::Other, <span class="macro">format!</span>(<span class="string">"Failed to retrieve user info: {}"</span>, error_text))))
+        <span class="prelude-val">Err</span>(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            <span class="macro">format!</span>(<span class="string">"Failed to retrieve user info: {}"</span>, error_text),
+        )))
     }
 }
 
@@ -250,27 +274,27 @@
     <span class="kw">static </span>INIT: Once = Once::new();
 
     <span class="doccomment">/// Initializes the test environment by setting up a logger for test cases.
-///
-/// This function is called once at the beginning of the test suite to ensure that the logger is properly configured for testing purposes.
-///
-/// # Arguments
-///
-/// This function does not take any arguments.
-///
-/// # Returns
-///
-/// This function does not return any value.
-///
-/// # Example
-///
-/// ```rust
-/// initialize();
-/// ```
-</span><span class="kw">pub fn </span>initialize() {
-    INIT.call_once(|| {
-        <span class="kw">let _ </span>= env_logger::builder().is_test(<span class="bool-val">true</span>).try_init();
-    });
-}
+    ///
+    /// This function is called once at the beginning of the test suite to ensure that the logger is properly configured for testing purposes.
+    ///
+    /// # Arguments
+    ///
+    /// This function does not take any arguments.
+    ///
+    /// # Returns
+    ///
+    /// This function does not return any value.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// initialize();
+    /// ```
+    </span><span class="kw">pub fn </span>initialize() {
+        INIT.call_once(|| {
+            <span class="kw">let _ </span>= env_logger::builder().is_test(<span class="bool-val">true</span>).try_init();
+        });
+    }
 
     <span class="doccomment">/// Tests the successful retrieval of a profile ID.
     ///
@@ -297,8 +321,12 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>server = Server::new_async().<span class="kw">await</span>;
 
-        <span class="kw">let </span>mock = server.mock(<span class="string">"GET"</span>, <span class="string">"/v2/userinfo"</span>)
-            .match_header(<span class="string">"Authorization"</span>, mockito::Matcher::Regex(<span class="string">"Bearer .+"</span>.to_string()))
+        <span class="kw">let </span>mock = server
+            .mock(<span class="string">"GET"</span>, <span class="string">"/v2/userinfo"</span>)
+            .match_header(
+                <span class="string">"Authorization"</span>,
+                mockito::Matcher::Regex(<span class="string">"Bearer .+"</span>.to_string()),
+            )
             .with_status(<span class="number">200</span>)
             .with_header(<span class="string">"content-type"</span>, <span class="string">"application/json"</span>)
             .with_body(<span class="string">r#"{"sub": "mock-profile-id"}"#</span>)
@@ -337,8 +365,12 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>server = Server::new_async().<span class="kw">await</span>;
 
-        <span class="kw">let </span>mock = server.mock(<span class="string">"GET"</span>, <span class="string">"/v2/userinfo"</span>)
-            .match_header(<span class="string">"Authorization"</span>, mockito::Matcher::Regex(<span class="string">"Bearer .+"</span>.to_string()))
+        <span class="kw">let </span>mock = server
+            .mock(<span class="string">"GET"</span>, <span class="string">"/v2/userinfo"</span>)
+            .match_header(
+                <span class="string">"Authorization"</span>,
+                mockito::Matcher::Regex(<span class="string">"Bearer .+"</span>.to_string()),
+            )
             .with_status(<span class="number">500</span>)
             .with_body(<span class="string">"Internal Server Error"</span>)
             .create_async()
@@ -349,4 +381,5 @@
         mock.assert_async().<span class="kw">await</span>;
         <span class="macro">assert!</span>(result.is_err());
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

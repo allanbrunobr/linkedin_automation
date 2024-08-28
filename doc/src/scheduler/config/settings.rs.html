@@ -26,16 +26,10 @@
 <a href="#26" id="26">26</a>
 <a href="#27" id="27">27</a>
 <a href="#28" id="28">28</a>
-<a href="#29" id="29">29</a>
-<a href="#30" id="30">30</a>
-<a href="#31" id="31">31</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>serde::Deserialize;
 
 <span class="attr">#[derive(Debug, Deserialize)]
 </span><span class="kw">pub struct </span>Config {
-    <span class="kw">pub </span>client_id: String,
-    <span class="kw">pub </span>client_secret: String,
-    <span class="kw">pub </span>redirect_uri: String,
     <span class="kw">pub </span>access_token: String,
 }
 

@@ -74,9 +74,17 @@
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>reqwest::Client;
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>log::info;
 <span class="kw">use </span>reqwest::header::{HeaderMap, AUTHORIZATION, CONTENT_TYPE};
-<span class="kw">use </span>log::{info};
+<span class="kw">use </span>reqwest::Client;
 
 <span class="doccomment">/// Publishes an article on LinkedIn using the provided access token and profile ID.
 ///
@@ -109,9 +117,18 @@
 ///
 /// publish_article(access_token, profile_id, title, content).await?;
 /// ```
-</span><span class="kw">pub async fn </span>publish_article(access_token: <span class="kw-2">&amp;</span>str, profile_id: <span class="kw-2">&amp;</span>str, _title: <span class="kw-2">&amp;</span>str, _content: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+</span><span class="kw">pub async fn </span>publish_article(
+    access_token: <span class="kw-2">&amp;</span>str,
+    profile_id: <span class="kw-2">&amp;</span>str,
+    _title: <span class="kw-2">&amp;</span>str,
+    _content: <span class="kw-2">&amp;</span>str,
+    base_url: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
     <span class="kw">let </span>client = Client::new();
-    <span class="kw">let </span>url = <span class="string">"https://api.linkedin.com/v2/ugcPosts"</span>;
+    <span class="kw">let </span>url = <span class="macro">format!</span>(
+        <span class="string">"{}/v2/ugcPosts"</span>,
+        base_url.unwrap_or(<span class="string">"https://api.linkedin.com"</span>)
+    );
 
     <span class="kw">let </span><span class="kw-2">mut </span>headers = HeaderMap::new();
     headers.insert(AUTHORIZATION, <span class="macro">format!</span>(<span class="string">"Bearer {}"</span>, access_token).parse()<span class="question-mark">?</span>);
@@ -136,17 +153,17 @@
 
     <span class="macro">info!</span>(<span class="string">"Sending POST request to LinkedIn with body: {:?}"</span>, body);
 
-    <span class="kw">let </span>response = client.post(url)
-        .headers(headers)
-        .json(<span class="kw-2">&amp;</span>body)
-        .send()
-        .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>response = client.post(url).headers(headers).json(<span class="kw-2">&amp;</span>body).send().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">if </span>response.status().is_success() {
         <span class="macro">info!</span>(<span class="string">"Article published successfully!"</span>);
         <span class="prelude-val">Ok</span>(())
     } <span class="kw">else </span>{
         <span class="macro">println!</span>(<span class="string">"Failed to publish article: {:?}"</span>, response.text().<span class="kw">await</span><span class="question-mark">?</span>);
-        <span class="prelude-val">Err</span>(Box::new(std::io::Error::new(std::io::ErrorKind::Other, <span class="string">"Failed to publish article"</span>)))
+        <span class="prelude-val">Err</span>(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            <span class="string">"Failed to publish article"</span>,
+        )))
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>
