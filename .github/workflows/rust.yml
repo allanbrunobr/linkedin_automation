@@ -46,7 +46,8 @@ jobs:
 
       - name: Generate JSDoc documentation
         run: |
-          jsdoc -c jsdoc.conf.json -r -d docs/jsdoc
+          cd frontend
+          jsdoc -c jsdoc.json -r -d docs/jsdoc
 
       - name: Create root index.html
         run: |
