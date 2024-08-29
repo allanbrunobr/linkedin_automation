@@ -128,12 +128,8 @@ The backend exposes several API endpoints:
 -   **POST /schedule**: Schedule a new post.
 -   **GET /posts**: Retrieve all scheduled posts.
 -   **GET /posts?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD**: Retrieve posts scheduled within a date range.
--   **PUT /posts/**
-    
-    : Update an existing post by its ID.
--   **DELETE /posts/**
-    
-    : Delete a scheduled post.
+-   **PUT /posts/**: Update an existing post by its ID.
+-   **DELETE /posts/**: Delete a scheduled post.
 
 ## MongoDB Setup
 
