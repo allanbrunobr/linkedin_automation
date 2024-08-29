@@ -1,3 +1,6 @@
+
+
+
 # LinkedIn Automation
 
 This project automates the process of scheduling and publishing posts on LinkedIn. It includes both a frontend (built with React) and a backend (built with Rust). The backend handles post scheduling and publishing using LinkedIn's API, while the frontend allows users to schedule posts through a simple interface.
@@ -8,13 +11,18 @@ This project automates the process of scheduling and publishing posts on LinkedI
 - **Post Management**: View, edit, and delete scheduled posts.
 - **LinkedIn Integration**: Seamlessly publish posts on LinkedIn using their API.
 - **User-Friendly Interface**: An intuitive React frontend for managing posts.
-
+-  **Timezone Support**: Automatically handles timezone differences using a configurable offset.
 ## Project Structure
 
 The project is organized into two main directories:
 
 - `frontend/`: Contains the React application.
 - `backend/`: Contains the Rust application that handles scheduling, post management, and communication with LinkedIn's API.
+
+
+## Documentation
+The backend documentation can be found at: [https://allanbrunobr.github.io/linkedin_automation/doc/scheduler/index.html](https://allanbrunobr.github.io/linkedin_automation/doc/scheduler/index.html)
+This documentation provides detailed information about the backend's structure, functions, and modules.
 
 ## Getting Started
 
@@ -48,7 +56,6 @@ The project is organized into two main directories:
    ```bash
    cd backend
    cargo build
-   cargo run --bin web_server
    ```
 
    This will start the Rust web server on `http://localhost:8080`.
@@ -58,8 +65,6 @@ The project is organized into two main directories:
 This project uses a `config.toml` file for storing configuration settings. The file should be placed in the root directory of the `backend` and include the following parameters:
 
 ```toml
-client_id = "YOUR_CLIENT_ID"
-client_secret = "YOUR_CLIENT_SECRET"
 redirect_uri = "http://localhost:3000/callback"
 access_token = "YOUR_ACCESS_TOKEN"
 ```
@@ -74,7 +79,7 @@ You can set this variable in a `.env` file in the root of your backend directory
 ```plaintext
 TIMEZONE_OFFSET=-3
 ```
-
+**Important:** The `TIMEZONE_OFFSET` variable is crucial for correct date and time handling in the application. If not set, the application will not start, ensuring that all time-related operations are performed correctly.
 
 ### Obtaining a LinkedIn Access Token
 
@@ -90,20 +95,45 @@ To get an `access_token` from LinkedIn, you need to follow these steps:
 
 **Important:** Keep your `config.toml` file secure and do not share it publicly, as it contains sensitive information.
 
+
 ### Running the Application
 
-- **Frontend:** Start the frontend by running `npm start` in the `frontend` directory.
-- **Backend:** Start the backend by running `cargo run --bin web_server` in the `backend` directory.
+The backend consists of two main binaries:
 
-The frontend will be available at `http://localhost:3000` and the backend API at `http://localhost:8080`.
+1.  **Web Server (`web_server`)**:
+    -   Handles API requests for scheduling, querying, updating, and deleting posts.
+    -   Start it with:
+        
+        
+        `cargo run --bin web_server`
+        
+    -   The server will be available at `http://localhost:8080`.
+2.  **Scheduler (`scheduler`)**:
+    -   Runs in the background, checking for scheduled posts and publishing them at the appropriate time.
+    -   Start it with:
+        
+        `cargo run --bin scheduler`
+        
+
+To run the full application:
+
+-   Start the frontend: In the `frontend` directory, run `npm start`
+-   Start the web server: In the `backend` directory, run `cargo run --bin web_server`
+-   Start the scheduler: In another terminal, in the `backend` directory, run `cargo run --bin scheduler`
 
 ## API Endpoints
 
 The backend exposes several API endpoints:
 
-- **POST /schedule**: Schedule a new post.
-- **GET /posts**: Retrieve all scheduled posts.
-- **DELETE /posts/:id**: Delete a scheduled post.
+-   **POST /schedule**: Schedule a new post.
+-   **GET /posts**: Retrieve all scheduled posts.
+-   **GET /posts?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD**: Retrieve posts scheduled within a date range.
+-   **PUT /posts/**
+    
+    : Update an existing post by its ID.
+-   **DELETE /posts/**
+    
+    : Delete a scheduled post.
 
 ## MongoDB Setup
 
@@ -149,13 +179,13 @@ The frontend is a React application that uses Bootstrap for styling. It allows u
 - **Development Server**: Run `npm start` to start the development server.
 - **Build**: Run `npm run build` to create a production build.
 
+
 ### Backend
 
 The backend is a Rust application that handles scheduling and publishing posts on LinkedIn. It communicates with the LinkedIn API and MongoDB.
 
-- **Development Server**: Run `cargo run --bin web_server` to start the backend server.
-- **Scheduler**: The scheduler is responsible for checking pending posts and publishing them at the scheduled time. It can be run using `cargo run --bin scheduler`.
-
+-   **Web Server**: Run `cargo run --bin web_server` to start the backend server.
+-   **Scheduler**: Run `cargo run --bin scheduler` to start the background scheduler process.
 ### Logging
 
 The backend uses `env_logger` for logging. Logs provide insights into the server's operation, including API requests, errors, and scheduled tasks.
@@ -173,3 +203,4 @@ This project is licensed under the MIT License.
 - [LinkedIn API](https://docs.microsoft.com/en-us/linkedin/)
 - [Rust Programming Language](https://www.rust-lang.org/)
 - [React](https://reactjs.org/)
+
