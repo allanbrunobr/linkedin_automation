@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["get_local_time","get_timezone_offset","load_config"],"struct":["Config"]};

@@ -1,1 +1,0 @@
-window.ALL_CRATES = ["scheduler","web_server"];

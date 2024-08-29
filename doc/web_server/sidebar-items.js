@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["default_status","delete_post_route","main","query_posts_route","schedule_post_route","update_post_route"],"mod":["config"],"struct":["ParseDateError","Post","PostQueryParams"]};
