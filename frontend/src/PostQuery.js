@@ -2,13 +2,34 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './styles.css';
 
-/**
- * PostQuery Component - This component provides an interface for querying scheduled posts
- * based on a date range. Users can search for posts, update them, or delete them.
- *
- * @component
- * @returns {JSX.Element} The rendered component.
- */
+const formatDate = (milliseconds) => {
+    const date = new Date(milliseconds);
+    return date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+};
+
+const formatPostData = (post) => {
+    let timestamp;
+    if (post.scheduled_time?.$date) {
+        timestamp = post.scheduled_time.$date.$numberLong
+            ? parseInt(post.scheduled_time.$date.$numberLong, 10)
+            : parseInt(post.scheduled_time.$date, 10);
+    } else {
+        timestamp = parseInt(post.scheduled_time, 10);
+    }
+
+    const date = new Date(timestamp);
+    const formattedDate = !isNaN(date.getTime())
+        ? `${date.toLocaleDateString('en-US')} @ ${date.toLocaleTimeString('en-US',
+            {hour: '2-digit', minute: '2-digit'})}`
+        : 'Invalid Date';
+
+    return {
+        ...post,
+        _id: post._id.$oid || post._id,
+        scheduled_time: formattedDate,
+    };
+};
+
 const PostQuery = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -19,57 +40,22 @@ const PostQuery = () => {
     const [formError, setFormError] = useState('');
     const navigate = useNavigate();
 
-    const formatDate = (milliseconds) => {
-        const date = new Date(milliseconds);
-        return date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-    };
-    /**
-     * Fetches posts from the backend based on the selected date range.
-     * The posts are formatted before being stored in the state.
-     */
     const fetchPosts = () => {
         const queryEndDate = isSingleDay ? startDate : endDate;
+        setIsLoading(true);
 
         setTimeout(() => {
             fetch(`http://localhost:8080/posts?start_date=${startDate}&end_date=${queryEndDate}`)
                 .then(response => response.json())
                 .then(data => {
-                    const formattedPosts = data.map(post => {
-                        let timestamp;
-
-                        if (post.scheduled_time?.$date) {
-                            timestamp = post.scheduled_time.$date.$numberLong
-                                ? parseInt(post.scheduled_time.$date.$numberLong, 10)
-                                : parseInt(post.scheduled_time.$date, 10);
-                        } else {
-                            timestamp = parseInt(post.scheduled_time, 10);
-                        }
-
-                        const date = new Date(timestamp);
-                        const formattedDate = !isNaN(date.getTime())
-                            ? `${date.toLocaleDateString('en-US')} @ ${date.toLocaleTimeString('en-US',
-                                {hour: '2-digit', minute: '2-digit'})}`
-                            : 'Invalid Date';
-
-                        return {
-                            ...post,
-                            _id: post._id.$oid || post._id,
-                            scheduled_time: formattedDate,
-                        };
-                    });
+                    const formattedPosts = data.map(formatPostData);
                     setPosts(formattedPosts);
-                    setIsLoading(false);
                 })
-            .catch(error => console.error('Error fetching posts:', error))
-            .finally(() => setIsLoading(false));
+                .catch(error => console.error('Error fetching posts:', error))
+                .finally(() => setIsLoading(false));
         }, 2000);
     };
 
-    /**
-     * Handles form submission to fetch posts based on the date range.
-     *
-     * @param {Event} event - The form submission event.
-     */
     const handleFormSubmit = (event) => {
         event.preventDefault();
         setFormError('');
@@ -87,77 +73,53 @@ const PostQuery = () => {
         fetchPosts();
     };
 
-    /**
-     * Delete a post based on its ID and refetches the updated list of posts.
-     *
-     * @param {string} id - The ID of the post to be deleted.
-     */
     const deletePost = (id) => {
         fetch(`http://localhost:8080/posts/${id}`, {
             method: 'DELETE',
         })
             .then(() => {
                 alert('Post deleted successfully!');
-                fetchPosts();  // Re-fetch posts after deletion
+                fetchPosts();
             })
             .catch(error => console.error('Error deleting post:', error));
     };
 
-    /**
-     * Navigates to the update screen with the selected post's details.
-     *
-     * @param {Object} post - The post object to be updated.
-     */
     const handleUpdateClick = (post) => {
         setSelectedPost(post);
         navigate('/update', { state: { post } });
     };
 
-    /**
-     * Handles the change of the "Single Day" checkbox.
-     * If checked, clears the end date.
-     *
-     * @param {Event} e - The change event.
-     */
     const handleSingleDayChange = (e) => {
         setIsSingleDay(e.target.checked);
         if (e.target.checked) {
             setEndDate('');
         }
         setFormError('');
-
     };
+
+    const renderPostList = () => (
+        <ul className="post-list">
+            {posts.map(post => (
+                <li key={post._id} className="post-item">
+                    <div className="post-content">
+                        <h3>{post.title}</h3>
+                        <p>{formatDate(post.scheduled_time)}</p>
+                    </div>
+                    <div className="post-actions">
+                        <button onClick={() => handleUpdateClick(post)} className="form-button update-button">Update</button>
+                        <button onClick={() => deletePost(post._id)} className="form-button delete-button">Delete</button>
+                    </div>
+                </li>
+            ))}
+        </ul>
+    );
 
     const renderContent = () => {
-        if (isLoading) {
-            return <p>Loading...</p>;
-        }
-
-        if (posts.length === 0) {
-            return <p>No posts found for the selected date range.</p>;
-        }
-
-        return (
-            <ul className="post-list">
-                {posts.map(post => (
-                    <li key={post._id} className="post-item">
-                        <div className="post-content">
-                            <h3>{post.title}</h3>
-                            <p>{formatDate(post.scheduled_time)}</p>
-                        </div>
-                        <div className="post-actions">
-                            <button onClick={() => handleUpdateClick(post)}
-                                    className="form-button update-button">Update
-                            </button>
-                            <button onClick={() => deletePost(post._id)}
-                                    className="form-button delete-button">Delete
-                            </button>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        );
+        if (isLoading) return <p>Loading...</p>;
+        if (posts.length === 0) return <p>No posts found for the selected date range.</p>;
+        return renderPostList();
     };
+
     return (
         <div className="form-container">
             <h2 className="form-title">Query Scheduled Posts</h2>
@@ -203,6 +165,5 @@ const PostQuery = () => {
         </div>
     );
 };
-
 
 export default PostQuery;
