@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: PostSchedulerForm.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: PostSchedulerForm.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState } from 'react';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './styles.css';
+
+
+/**
+ * PostSchedulerForm Component - A form component that allows users to schedule a post.
+ *
+ * This component provides a form with fields for the post title, content, and scheduled time.
+ * It also includes an emoji picker for adding emojis to the content. The form data is sent to a server
+ * when the form is submitted.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered PostSchedulerForm component.
+ */
+const PostSchedulerForm = () => {
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
+    const [scheduledTime, setScheduledTime] = useState('');
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+    /**
+     * Handles form submission by sending the post data to the server.
+     *
+     * @param {Event} event - The form submission event.
+     */
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const formattedDate = scheduledTime.replace('T', ' ');
+
+        const post = {
+            title,
+            content,
+            scheduled_time: formattedDate,
+            status: 'pending',
+        };
+
+        fetch('http://localhost:8080/schedule', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(post),
+        })
+            .then(response => response.text())
+            .then(data => {
+                alert('Post scheduled successfully!');
+                clearForm();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    };
+
+    /**
+     * Clears the form fields, resetting the form to its initial state.
+     */
+    const clearForm = () => {
+        setTitle('');
+        setContent('');
+        setScheduledTime('');
+        setShowEmojiPicker(false);
+    };
+
+    /**
+     * Adds an emoji to the post content.
+     *
+     * @param {Object} emoji - The selected emoji object.
+     */
+    const addEmoji = (emoji) => {
+        setContent(content + emoji.native);
+        setShowEmojiPicker(false);
+    };
+
+    return (
+        &lt;div className="form-container">
+            &lt;h2 className="form-title">Schedule a Post&lt;/h2>
+            &lt;form onSubmit={handleSubmit}>
+                &lt;div className="form-group">
+                    &lt;label htmlFor="title">Title:&lt;/label>
+                    &lt;input
+                        type="text"
+                        id="title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                    />
+                &lt;/div>
+
+                &lt;div className="form-group">
+                    &lt;label htmlFor="content">Content:&lt;/label>
+                    &lt;textarea
+                        id="content"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        required
+                        rows="5"
+                    />
+                    &lt;button
+                        type="button"
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        className="form-button"
+                    >
+                        {showEmojiPicker ? 'Close Emoji Picker' : 'Add Emoji'}
+                    &lt;/button>
+                    {showEmojiPicker &amp;&amp; (
+                        &lt;Picker data={data} onEmojiSelect={addEmoji} />
+                    )}
+                &lt;/div>
+
+                &lt;div className="form-group">
+                    &lt;label htmlFor="scheduledTime">Scheduled Time (Brazil Time - UTC-3):&lt;/label>
+                    &lt;input
+                        type="datetime-local"
+                        id="scheduledTime"
+                        value={scheduledTime}
+                        onChange={(e) => setScheduledTime(e.target.value)}
+                        required
+                    />
+                &lt;/div>
+
+                &lt;div className="button-group">
+                    &lt;button type="submit" className="form-button">Schedule&lt;/button>
+                    &lt;button type="button" onClick={clearForm} className="form-button">Clear&lt;/button>
+                &lt;/div>
+            &lt;/form>
+        &lt;/div>
+    );
+};
+
+export default PostSchedulerForm;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#PostQuery">PostQuery</a></li><li><a href="global.html#PostSchedulerForm">PostSchedulerForm</a></li><li><a href="global.html#UpdatePost">UpdatePost</a></li><li><a href="global.html#formatDate">formatDate</a></li><li><a href="global.html#formatPostData">formatPostData</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Thu Aug 29 2024 13:03:55 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
