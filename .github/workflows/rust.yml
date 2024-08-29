@@ -16,24 +16,42 @@ jobs:
           - 27017:27017
     steps:
       - uses: actions/checkout@v2
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
           override: true
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.20.3'  # Versão específica do Node.js
+
+      - name: Install JSDoc
+        run: |
+          npm install -g jsdoc
+
       - name: Run tests
         run: |
           cd backend
           cargo test --all
-      - name: Build and generate documentation
+
+      - name: Build and generate Cargo documentation
         run: |
           cd backend
           cargo build --release
-          cargo doc --no-deps --target-dir=../docs
+          cargo doc --no-deps --target-dir=../docs/cargo
+
+      - name: Generate JSDoc documentation
+        run: |
+          jsdoc -c jsdoc.conf.json -r -d docs/jsdoc
+
       - name: Create root index.html
         run: |
-          echo '<meta http-equiv="refresh" content="0; url=doc/scheduler/index.html">' > docs/index.html
+          echo '<meta http-equiv="refresh" content="0; url=cargo/scheduler/index.html">' > docs/index.html
+
       - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
