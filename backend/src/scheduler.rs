@@ -78,7 +78,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
     let config = load_config("config.toml")?;
-    let mongo_client = Client::with_uri_str("mongodb://localhost:27017").await?;
+    let mongo_client = Client::with_uri_str("mongodb://mongodb:27017").await?;
     let db = mongo_client.database("lkdin-posts");
     let posts: mongodb::Collection<Document> = db.collection("posts");
     let access_token = config.access_token.clone();

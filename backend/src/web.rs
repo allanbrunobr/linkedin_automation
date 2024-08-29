@@ -111,7 +111,7 @@ async fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
     // Create a MongoDB client and connect to the "lkdin-posts" database.
-    let mongo_client = Client::with_uri_str("mongodb://localhost:27017")
+    let mongo_client = Client::with_uri_str("mongodb://mongo:27017")
         .await
         .unwrap();
     let db = mongo_client.database("lkdin-posts");
