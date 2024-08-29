@@ -130,7 +130,6 @@ Navigate to the root of your project directory where the `docker-compose.yml` fi
 
 -   This command will:
     
-  
 
 >     -   Build the Docker images for the backend and frontend services.
 >     -   Start the MongoDB service.
@@ -140,12 +139,12 @@ Navigate to the root of your project directory where the `docker-compose.yml` fi
    ### Option 2: Running Manually
 
 If you prefer not to use Docker, you can run the application manually by setting up the services individually.
--   **Access the application:**: Open your browser and go to `http://localhost:3000` to access the application.
+-   **Access the application:** Open your browser and go to `http://localhost:3000` to access the application.
 
 1.  **Clone the repository:**
 The backend consists of two main binaries:
 
-1.  **Web Server (`web_server`)**:
+1.  **Web Server (`web_server`):**
     -   Handles API requests for scheduling, querying, updating, and deleting posts.
     -   Start it with:
         
