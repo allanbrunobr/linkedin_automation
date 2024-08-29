@@ -21,8 +21,8 @@ The project is organized into two main directories:
 
 
 ## Documentation
-The backend documentation can be found at: [https://allanbrunobr.github.io/linkedin_automation/doc/scheduler/index.html](https://allanbrunobr.github.io/linkedin_automation/doc/scheduler/index.html)
-This documentation provides detailed information about the backend's structure, functions, and modules.
+The  documentation can be found at: [https://allanbrunobr.github.io/linkedin_automation/](https://allanbrunobr.github.io/linkedin_automation/)
+This documentation provides detailed information about the app's structure, functions, and modules.
 
 ## Getting Started
 
