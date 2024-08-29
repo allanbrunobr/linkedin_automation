@@ -424,7 +424,7 @@
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or(<span class="string">"info"</span>)).init();
 
     <span class="kw">let </span>config = load_config(<span class="string">"config.toml"</span>)<span class="question-mark">?</span>;
-    <span class="kw">let </span>mongo_client = Client::with_uri_str(<span class="string">"mongodb://localhost:27017"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>mongo_client = Client::with_uri_str(<span class="string">"mongodb://mongodb:27017"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>db = mongo_client.database(<span class="string">"lkdin-posts"</span>);
     <span class="kw">let </span>posts: mongodb::Collection&lt;Document&gt; = db.collection(<span class="string">"posts"</span>);
     <span class="kw">let </span>access_token = config.access_token.clone();
