@@ -21,8 +21,8 @@ The project is organized into two main directories:
 
 
 ## Documentation
-The  documentation can be found at: [https://allanbrunobr.github.io/linkedin_automation/](https://allanbrunobr.github.io/linkedin_automation/)
-This documentation provides detailed information about the app's structure, functions, and modules.
+The backend documentation can be found at: [https://allanbrunobr.github.io/linkedin_automation/doc/scheduler/index.html](https://allanbrunobr.github.io/linkedin_automation/doc/scheduler/index.html)
+This documentation provides detailed information about the backend's structure, functions, and modules.
 
 ## Getting Started
 
@@ -96,8 +96,53 @@ To get an `access_token` from LinkedIn, you need to follow these steps:
 **Important:** Keep your `config.toml` file secure and do not share it publicly, as it contains sensitive information.
 
 
-### Running the Application
+## Running the Application
 
+You can run the application either using Docker Compose, which simplifies the setup process, or manually by following the traditional method. Below are instructions for both approaches.
+
+### Option 1: Running with Docker Compose
+
+This method uses Docker Compose to run the entire application stack, including the frontend, backend, and MongoDB, with a single command.
+
+1. **Clone the repository:**
+     
+		> git clone https://github.com/yourusername/linkedin_automation.git
+		> cd linkedin_automation
+
+
+2. **Ensure the `config.toml` file is correctly configured:**
+Make sure you have your `config.toml` file set up in the `backend` directory with the necessary configuration parameters:
+
+	    redirect_uri = "http://localhost:3000/callback"
+		access_token = "YOUR_ACCESS_TOKEN"
+
+3. **Create a `.env` file in the `backend` directory:**
+
+	Set the `TIMEZONE_OFFSET` variable:
+
+		TIMEZONE_OFFSET =-3
+
+4. **Start the application using Docker Compose:**
+
+Navigate to the root of your project directory where the `docker-compose.yml` file is located, and run:
+
+    docker-compose up --build
+
+-   This command will:
+    
+  
+
+>     -   Build the Docker images for the backend and frontend services.
+>     -   Start the MongoDB service.
+>     -   Launch the backend (including both the web server and scheduler) and frontend services.
+    
+    
+   ### Option 2: Running Manually
+
+If you prefer not to use Docker, you can run the application manually by setting up the services individually.
+-   **Access the application:**: Open your browser and go to `http://localhost:3000` to access the application.
+
+1.  **Clone the repository:**
 The backend consists of two main binaries:
 
 1.  **Web Server (`web_server`)**:
@@ -128,8 +173,12 @@ The backend exposes several API endpoints:
 -   **POST /schedule**: Schedule a new post.
 -   **GET /posts**: Retrieve all scheduled posts.
 -   **GET /posts?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD**: Retrieve posts scheduled within a date range.
--   **PUT /posts/**: Update an existing post by its ID.
--   **DELETE /posts/**: Delete a scheduled post.
+-   **PUT /posts/**
+    
+    : Update an existing post by its ID.
+-   **DELETE /posts/**
+    
+    : Delete a scheduled post.
 
 ## MongoDB Setup
 
@@ -199,4 +248,5 @@ This project is licensed under the MIT License.
 - [LinkedIn API](https://docs.microsoft.com/en-us/linkedin/)
 - [Rust Programming Language](https://www.rust-lang.org/)
 - [React](https://reactjs.org/)
+
 
