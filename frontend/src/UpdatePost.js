@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+/**
+ * UpdatePost Component - This component allows the user to update an existing post.
+ * The post data is pre-filled based on the selected post from the previous screen.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ */
 const UpdatePost = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -9,6 +16,12 @@ const UpdatePost = () => {
     const [content, setContent] = useState('');
     const [scheduledTime, setScheduledTime] = useState('');
 
+    /**
+     * Formats a timestamp into a date string in the format YYYY-MM-DDTHH:MM.
+     *
+     * @param {number|string} timestamp - The timestamp to format.
+     * @returns {string} The formatted date string.
+     */
     const formatDate = (timestamp) => {
         const date = new Date(timestamp);
 
@@ -22,8 +35,13 @@ const UpdatePost = () => {
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
 
+    /**
+     * useEffect hook that runs when the component is mounted.
+     * It checks if post data is passed via location state, and if so, it pre-fills the form fields.
+     * If no post data is found, it navigates back to the home page.
+     */
     useEffect(() => {
-        if (location.state && location.state.post) {
+        if (location.state?.post) {
             const postData = location.state.post;
             setPost(postData);
             setTitle(postData.title);
@@ -34,12 +52,17 @@ const UpdatePost = () => {
         }
     }, [location, navigate]);
 
+    /**
+     * Handles the submission of the update form.
+     * It sends the updated post data to the server via a PUT request.
+     *
+     * @param {Event} event - The form submission event.
+     */
     const handleUpdate = (event) => {
         event.preventDefault();
         if (!post) return;
 
         const formattedDate = scheduledTime.replace('T', ' ');
-
 
         const updatedPost = {
             title,
@@ -68,6 +91,7 @@ const UpdatePost = () => {
             .catch(error => console.error('Error updating post:', error));
     };
 
+    // Renders a loading message while the post data is being loaded
     if (!post) return <div>Loading...</div>;
 
     return (

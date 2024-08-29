@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 import PostSchedulerForm from './PostSchedulerForm';
 import PostQuery from './PostQuery';
 import UpdatePost from './UpdatePost';
-import './styles.css'; // Make sure to create this file
+import './styles.css';
 
 const App = () => {
     return (

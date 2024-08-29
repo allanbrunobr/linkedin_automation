@@ -2,11 +2,23 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './styles.css';
 
+/**
+ * Formats a given timestamp in milliseconds to a localized string.
+ *
+ * @param {number} milliseconds - The timestamp in milliseconds.
+ * @returns {string} The formatted date string in 'pt-BR' locale.
+ */
 const formatDate = (milliseconds) => {
     const date = new Date(milliseconds);
     return date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 };
 
+/**
+ * Formats a post object by converting the scheduled_time field to a human-readable format.
+ *
+ * @param {Object} post - The post object.
+ * @returns {Object} The formatted post object with a readable scheduled_time.
+ */
 const formatPostData = (post) => {
     let timestamp;
     if (post.scheduled_time?.$date) {
@@ -19,8 +31,7 @@ const formatPostData = (post) => {
 
     const date = new Date(timestamp);
     const formattedDate = !isNaN(date.getTime())
-        ? `${date.toLocaleDateString('en-US')} @ ${date.toLocaleTimeString('en-US',
-            {hour: '2-digit', minute: '2-digit'})}`
+        ? `${date.toLocaleDateString('en-US')} @ ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
         : 'Invalid Date';
 
     return {
@@ -30,6 +41,13 @@ const formatPostData = (post) => {
     };
 };
 
+/**
+ * PostQuery Component - This component provides an interface for querying scheduled posts
+ * based on a date range. Users can search for posts, update them, or delete them.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ */
 const PostQuery = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -40,6 +58,10 @@ const PostQuery = () => {
     const [formError, setFormError] = useState('');
     const navigate = useNavigate();
 
+    /**
+     * Fetches posts from the backend based on the selected date range.
+     * The posts are formatted before being stored in the state.
+     */
     const fetchPosts = () => {
         const queryEndDate = isSingleDay ? startDate : endDate;
         setIsLoading(true);
@@ -56,6 +78,11 @@ const PostQuery = () => {
         }, 2000);
     };
 
+    /**
+     * Handles form submission to fetch posts based on the date range.
+     *
+     * @param {Event} event - The form submission event.
+     */
     const handleFormSubmit = (event) => {
         event.preventDefault();
         setFormError('');
@@ -73,6 +100,11 @@ const PostQuery = () => {
         fetchPosts();
     };
 
+    /**
+     * Deletes a post based on its ID and refetches the updated list of posts.
+     *
+     * @param {string} id - The ID of the post to be deleted.
+     */
     const deletePost = (id) => {
         fetch(`http://localhost:8080/posts/${id}`, {
             method: 'DELETE',
@@ -84,11 +116,22 @@ const PostQuery = () => {
             .catch(error => console.error('Error deleting post:', error));
     };
 
+    /**
+     * Navigates to the update screen with the selected post's details.
+     *
+     * @param {Object} post - The post object to be updated.
+     */
     const handleUpdateClick = (post) => {
         setSelectedPost(post);
         navigate('/update', { state: { post } });
     };
 
+    /**
+     * Handles the change of the "Single Day" checkbox.
+     * If checked, clears the end date.
+     *
+     * @param {Event} e - The change event.
+     */
     const handleSingleDayChange = (e) => {
         setIsSingleDay(e.target.checked);
         if (e.target.checked) {
@@ -97,6 +140,11 @@ const PostQuery = () => {
         setFormError('');
     };
 
+    /**
+     * Renders the list of posts.
+     *
+     * @returns {JSX.Element} The rendered list of posts.
+     */
     const renderPostList = () => (
         <ul className="post-list">
             {posts.map(post => (
@@ -114,6 +162,11 @@ const PostQuery = () => {
         </ul>
     );
 
+    /**
+     * Renders the content of the component based on loading state and available posts.
+     *
+     * @returns {JSX.Element} The rendered content.
+     */
     const renderContent = () => {
         if (isLoading) return <p>Loading...</p>;
         if (posts.length === 0) return <p>No posts found for the selected date range.</p>;
