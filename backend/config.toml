@@ -1,2 +1,2 @@
 redirect_uri = "http://localhost:3000/callback"
-access_token = "YOUR_ACCESS_KEY"
+access_token = "YOUR_ACCESS_TOKEN"
