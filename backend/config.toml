@@ -1,4 +1,2 @@
-client_id = "YOUR_CLIENT_ID"
-client_secret = "YOUR_CLIENT_SECRET"
 redirect_uri = "http://localhost:3000/callback"
-access_token = "YOUT_ACCESS_TOKEN"
+access_token = "YOUR_ACCESS_KEY"
