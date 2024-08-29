@@ -307,13 +307,18 @@ pub fn query_posts_route(
                     let datetime_str = format!("{} {}", date_str, time_str);
                     let naive_dt = NaiveDateTime::parse_from_str(&datetime_str, "%Y-%m-%d %H:%M:%S")
                         .map_err(|_| warp::reject::custom(ParseDateError))?;
-                    let utc_dt = Utc.from_local_datetime(&naive_dt).unwrap();
-                    get_local_time(utc_dt)
-                        .map(|local_time| local_time.timestamp_millis())
+
+                    get_timezone_offset()
                         .map_err(|e| {
-                            error!("Error getting local time: {}", e);
+                            error!("Error getting timezone offset: {}", e);
                             warp::reject::custom(ParseDateError)
                         })
+                        .and_then(|offset| {
+                            offset.from_local_datetime(&naive_dt)
+                                .single()
+                                .ok_or_else(|| warp::reject::custom(ParseDateError))
+                        })
+                        .map(|local_time| local_time.timestamp_millis())
                 };
 
                 let start_millis = to_millis(&params.start_date, false)?;
@@ -323,11 +328,13 @@ pub fn query_posts_route(
 
                 let filter = doc! {
                     "scheduled_time": {
-                        "$gte": start_millis,
-                        "$lte": end_millis,
+                        "$gte": Bson::Int64(start_millis),
+                        "$lte": Bson::Int64(end_millis),
                     },
                     "status": "pending"
                 };
+                info!("Start date: {}, End date: {}", params.start_date, params.end_date);
+                info!("Start millis: {}, End millis: {}", start_millis, end_millis);
 
                 let mut cursor = posts.find(filter).await.map_err(|e| {
                     error!("Error querying posts: {}", e);
@@ -335,6 +342,9 @@ pub fn query_posts_route(
                 })?;
                 let mut results = Vec::new();
                 while let Ok(Some(post)) = cursor.try_next().await {
+                    if let Some(scheduled_time) = post.get("scheduled_time") {
+                        info!("Found post with scheduled_time: {:?}", scheduled_time);
+                    }
                     results.push(post);
                 }
                 Ok::<_, Rejection>(warp::reply::json(&results))
