@@ -15,6 +15,8 @@ const PostQuery = () => {
     const [isSingleDay, setIsSingleDay] = useState(false);
     const [posts, setPosts] = useState([]);
     const [selectedPost, setSelectedPost] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [formError, setFormError] = useState('');
     const navigate = useNavigate();
 
     const formatDate = (milliseconds) => {
@@ -27,34 +29,40 @@ const PostQuery = () => {
      */
     const fetchPosts = () => {
         const queryEndDate = isSingleDay ? startDate : endDate;
-        fetch(`http://localhost:8080/posts?start_date=${startDate}&end_date=${queryEndDate}`)
-            .then(response => response.json())
-            .then(data => {
-                const formattedPosts = data.map(post => {
-                    let timestamp;
 
-                    if (post.scheduled_time && post.scheduled_time.$date) {
-                        timestamp = post.scheduled_time.$date.$numberLong
-                            ? parseInt(post.scheduled_time.$date.$numberLong, 10)
-                            : parseInt(post.scheduled_time.$date, 10);
-                    } else {
-                        timestamp = parseInt(post.scheduled_time, 10);
-                    }
+        setTimeout(() => {
+            fetch(`http://localhost:8080/posts?start_date=${startDate}&end_date=${queryEndDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    const formattedPosts = data.map(post => {
+                        let timestamp;
 
-                    const date = new Date(timestamp);
-                    const formattedDate = !isNaN(date.getTime())
-                        ? `${date.toLocaleDateString('en-US')} @ ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
-                        : 'Invalid Date';
+                        if (post.scheduled_time?.$date) {
+                            timestamp = post.scheduled_time.$date.$numberLong
+                                ? parseInt(post.scheduled_time.$date.$numberLong, 10)
+                                : parseInt(post.scheduled_time.$date, 10);
+                        } else {
+                            timestamp = parseInt(post.scheduled_time, 10);
+                        }
 
-                    return {
-                        ...post,
-                        _id: post._id.$oid || post._id,
-                        scheduled_time: formattedDate,
-                    };
-                });
-                setPosts(formattedPosts);
-            })
-            .catch(error => console.error('Error fetching posts:', error));
+                        const date = new Date(timestamp);
+                        const formattedDate = !isNaN(date.getTime())
+                            ? `${date.toLocaleDateString('en-US')} @ ${date.toLocaleTimeString('en-US',
+                                {hour: '2-digit', minute: '2-digit'})}`
+                            : 'Invalid Date';
+
+                        return {
+                            ...post,
+                            _id: post._id.$oid || post._id,
+                            scheduled_time: formattedDate,
+                        };
+                    });
+                    setPosts(formattedPosts);
+                    setIsLoading(false);
+                })
+            .catch(error => console.error('Error fetching posts:', error))
+            .finally(() => setIsLoading(false));
+        }, 2000);
     };
 
     /**
@@ -64,11 +72,23 @@ const PostQuery = () => {
      */
     const handleFormSubmit = (event) => {
         event.preventDefault();
+        setFormError('');
+
+        if (!startDate) {
+            setFormError('Start Date is required');
+            return;
+        }
+
+        if (!isSingleDay && !endDate) {
+            setFormError('End Date is required when not selecting a single day');
+            return;
+        }
+        setIsLoading(true);
         fetchPosts();
     };
 
     /**
-     * Deletes a post based on its ID and refetches the updated list of posts.
+     * Delete a post based on its ID and refetches the updated list of posts.
      *
      * @param {string} id - The ID of the post to be deleted.
      */
@@ -104,8 +124,40 @@ const PostQuery = () => {
         if (e.target.checked) {
             setEndDate('');
         }
+        setFormError('');
+
     };
 
+    const renderContent = () => {
+        if (isLoading) {
+            return <p>Loading...</p>;
+        }
+
+        if (posts.length === 0) {
+            return <p>No posts found for the selected date range.</p>;
+        }
+
+        return (
+            <ul className="post-list">
+                {posts.map(post => (
+                    <li key={post._id} className="post-item">
+                        <div className="post-content">
+                            <h3>{post.title}</h3>
+                            <p>{formatDate(post.scheduled_time)}</p>
+                        </div>
+                        <div className="post-actions">
+                            <button onClick={() => handleUpdateClick(post)}
+                                    className="form-button update-button">Update
+                            </button>
+                            <button onClick={() => deletePost(post._id)}
+                                    className="form-button delete-button">Delete
+                            </button>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        );
+    };
     return (
         <div className="form-container">
             <h2 className="form-title">Query Scheduled Posts</h2>
@@ -130,7 +182,7 @@ const PostQuery = () => {
                         </div>
                     </div>
                     <div className="date-input">
-                        <label htmlFor="endDate">End Date</label>
+                        <label htmlFor="endDate">End Date{!isSingleDay && '*'}</label>
                         <input
                             type="date"
                             id="endDate"
@@ -140,36 +192,17 @@ const PostQuery = () => {
                         />
                     </div>
                 </div>
+                {formError && <p className="error-message">{formError}</p>}
                 <button type="submit" className="form-button search-button">Search</button>
             </form>
 
             <div className="results-section">
                 <h2>Results</h2>
-                {posts.length === 0 ? (
-                    <p>No posts found for the selected date range.</p>
-                ) : (
-                    <ul className="post-list">
-                        {posts.map(post => (
-                            <li key={post._id} className="post-item">
-                                <div className="post-content">
-                                    <h3>{post.title}</h3>
-                                    <p>{formatDate(post.scheduled_time)}</p>
-                                </div>
-                                <div className="post-actions">
-                                    <button onClick={() => handleUpdateClick(post)}
-                                            className="form-button update-button">Update
-                                    </button>
-                                    <button onClick={() => deletePost(post._id)}
-                                            className="form-button delete-button">Delete
-                                    </button>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                )}
+                {renderContent()}
             </div>
         </div>
     );
 };
+
 
 export default PostQuery;
