@@ -47,11 +47,25 @@ jobs:
       - name: Generate JSDoc documentation
         run: |
           cd frontend
-          jsdoc -c jsdoc.json -r -d docs/jsdoc
+          jsdoc -c jsdoc.json -r -d ../docs/jsdoc
 
       - name: Create root index.html
         run: |
-          echo '<meta http-equiv="refresh" content="0; url=cargo/scheduler/index.html">' > docs/index.html
+          echo '<!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Project Documentation</title>
+          </head>
+          <body>
+              <h1>Project Documentation</h1>
+              <ul>
+                  <li><a href="cargo/scheduler/index.html">Rust Documentation</a></li>
+                  <li><a href="jsdoc/index.html">React (JSDoc) Documentation</a></li>
+              </ul>
+          </body>
+          </html>' > docs/index.html
 
       - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.7
