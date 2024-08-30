@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Form, Button, Container, Header, Segment, Message, Loader } from 'semantic-ui-react';
+import { Form, Button, Container, Header, Segment, Message, Loader, Icon, Grid, Modal } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 
 const UpdatePost = () => {
@@ -12,6 +12,9 @@ const UpdatePost = () => {
     const [scheduledTime, setScheduledTime] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalSuccess, setModalSuccess] = useState(true);
 
     const formatDate = (timestamp) => {
         const date = new Date(timestamp);
@@ -31,11 +34,17 @@ const UpdatePost = () => {
             setContent(postData.content);
             setScheduledTime(formatDate(postData.scheduled_time));
         } else {
-            setError('No post data found. Redirecting to home page.');
-            setTimeout(() => navigate('/'), 3000);
+            showModal('No post data found. Redirecting to home page.', false);
+             setTimeout(() => navigate('/'), 3000);
         }
         setLoading(false);
     }, [location, navigate]);
+
+    const showModal = (message, success = true) => {
+        setModalMessage(message);
+        setModalSuccess(success);
+        setModalOpen(true);
+    };
 
     const handleUpdate = (event) => {
         event.preventDefault();
@@ -58,8 +67,8 @@ const UpdatePost = () => {
         })
             .then(response => {
                 if (response.ok) {
-                    setError('');
-                    navigate('/', { state: { message: 'Post updated successfully!' } });
+                    showModal('Post updated successfully!');
+                    //navigate('/', { state: { message: 'Post updated successfully!' } });
                 } else {
                     return response.text().then(text => {
                         throw new Error(text);
@@ -68,16 +77,22 @@ const UpdatePost = () => {
             })
             .catch(error => {
                 console.error('Error updating post:', error);
-                setError(`Failed to update post: ${error.message}`);
+                showModal(`Failed to update post: ${error.message}`, false);
             })
             .finally(() => setLoading(false));
+    };
+    const handleModalClose = () => {
+        setModalOpen(false);
+        if (modalSuccess) {
+            navigate('/');
+        }
     };
 
     if (loading) return <Loader active>Loading...</Loader>;
 
     if (error) {
         return (
-            <Container text>
+            <Container>
                 <Message negative>
                     <Message.Header>Error</Message.Header>
                     <p>{error}</p>
@@ -87,9 +102,12 @@ const UpdatePost = () => {
     }
 
     return (
-        <Container text>
-            <Header as='h1' attached='top'>Update Post</Header>
-            <Segment attached>
+        <Container>
+            <Segment padded="very">
+                <Header as="h2" icon textAlign="center">
+                    <Icon name="edit" circular />
+                    <Header.Content>Update Post</Header.Content>
+                </Header>
                 <Form onSubmit={handleUpdate} loading={loading}>
                     <Form.Input
                         label='Title'
@@ -104,16 +122,42 @@ const UpdatePost = () => {
                         required
                     />
                     <Form.Input
-                        label='Scheduled Time'
+                        label='Scheduled Time (Brazil Time - UTC-3)'
                         type='datetime-local'
                         value={scheduledTime}
                         onChange={(e) => setScheduledTime(e.target.value)}
                         required
                     />
-                    <Button primary type='submit'>Update</Button>
-                    <Button secondary onClick={() => navigate('/')}>Cancel</Button>
+                    <Grid>
+                        <Grid.Column textAlign="right">
+                            <Button.Group>
+                                <Button secondary onClick={() => navigate('/')}>Cancel</Button>
+                                <Button.Or />
+                                <Button positive type='submit'>Update</Button>
+                            </Button.Group>
+                        </Grid.Column>
+                    </Grid>
                 </Form>
             </Segment>
+            <Modal
+                onClose={handleModalClose}
+                open={modalOpen}
+                size='tiny'
+                centered={false}
+            >
+                <Header icon>
+                    <Icon name={modalSuccess ? 'check circle' : 'exclamation triangle'} />
+                    {modalSuccess ? 'Success' : 'Error'}
+                </Header>
+                <Modal.Content>
+                    <p>{modalMessage}</p>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button color={modalSuccess ? 'green' : 'red'} inverted onClick={handleModalClose}>
+                        <Icon name='checkmark' /> OK
+                    </Button>
+                </Modal.Actions>
+            </Modal>
         </Container>
     );
 };

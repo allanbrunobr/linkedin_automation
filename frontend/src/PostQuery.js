@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Button, Checkbox, Container, Header, Segment, Table, Message, Loader, Dimmer } from 'semantic-ui-react';
+import { Form, Button, Checkbox, Container, Header, Segment, Table, Message, Loader, Dimmer, Modal, Icon } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import './styles.css';
 
@@ -40,6 +40,10 @@ const PostQuery = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [formError, setFormError] = useState('');
     const navigate = useNavigate();
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [postToDelete, setPostToDelete] = useState(null);
+    
 
     const fetchPosts = () => {
         const queryEndDate = isSingleDay ? startDate : endDate;
@@ -72,6 +76,34 @@ const PostQuery = () => {
         }
         setIsLoading(true);
         fetchPosts();
+    };
+
+    const showModal = (message, post = null) => {
+        setModalMessage(message);
+        setPostToDelete(post);
+        setModalOpen(true);
+    };
+
+    const handleDeleteConfirm = () => {
+        if (postToDelete) {
+            fetch(`http://localhost:8080/posts/${postToDelete._id}`, {
+                method: 'DELETE',
+            })
+                .then(() => {
+                    setModalOpen(false);
+                    showModal('Post deleted successfully!');
+                    fetchPosts();
+                })
+                .catch(error => {
+                    console.error('Error deleting post:', error);
+                    setModalOpen(false);
+                    showModal('Error deleting post. Please try again.');
+                });
+        }
+    };
+
+    const handleDeleteClick = (post) => {
+        showModal('Are you sure you want to delete this post?', post);
     };
 
     const deletePost = (id) => {
@@ -114,7 +146,7 @@ const PostQuery = () => {
                         <Table.Cell>{formatDate(post.scheduled_time)}</Table.Cell>
                         <Table.Cell>
                             <Button primary onClick={() => handleUpdateClick(post)}>Update</Button>
-                            <Button negative onClick={() => deletePost(post._id)}>Delete</Button>
+                            <Button negative onClick={() => handleDeleteClick(post)}>Delete</Button>
                         </Table.Cell>
                     </Table.Row>
                 ))}
@@ -173,6 +205,36 @@ const PostQuery = () => {
                     {renderContent()}
                 </Dimmer.Dimmable>
             </Segment>
+            <Modal
+                onClose={() => setModalOpen(false)}
+                open={modalOpen}
+                size='tiny'
+                centered={false}
+            >
+                <Header icon>
+                    <Icon name={postToDelete ? 'trash' : 'info circle'} />
+                    {postToDelete ? 'Delete Post' : 'Information'}
+                </Header>
+                <Modal.Content>
+                    <p>{modalMessage}</p>
+                </Modal.Content>
+                <Modal.Actions>
+                    {postToDelete ? (
+                        <>
+                            <Button basic color='red' inverted onClick={() => setModalOpen(false)}>
+                                <Icon name='remove' /> No
+                            </Button>
+                            <Button color='green' inverted onClick={handleDeleteConfirm}>
+                                <Icon name='checkmark' /> Yes
+                            </Button>
+                        </>
+                    ) : (
+                        <Button color='green' inverted onClick={() => setModalOpen(false)}>
+                            <Icon name='checkmark' /> OK
+                        </Button>
+                    )}
+                </Modal.Actions>
+            </Modal>
         </Container>
     );
 };

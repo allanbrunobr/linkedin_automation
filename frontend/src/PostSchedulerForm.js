@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import { Form, Input, TextArea, Button, Header, Icon, Segment, Grid, Popup } from 'semantic-ui-react';
+import { Form, Input, TextArea, Button, Header, Icon, Segment, Grid, Popup, Modal } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import './styles.css';
 
@@ -21,7 +21,15 @@ const PostSchedulerForm = () => {
     const [scheduledTime, setScheduledTime] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalSuccess, setModalSuccess] = useState(true);
 
+    const showModal = (message, success = true) => {
+        setModalMessage(message);
+        setModalSuccess(success);
+        setModalOpen(true);
+    };
     /**
      * Handles form submission by sending the post data to the server.
      *
@@ -46,15 +54,21 @@ const PostSchedulerForm = () => {
             },
             body: JSON.stringify(post),
         })
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
             .then(data => {
                 setLoading(false);
                 clearForm();
-                alert('Post scheduled successfully!');
+                showModal('Post scheduled successfully!');
             })
             .catch((error) => {
                 setLoading(false);
                 console.error('Error:', error);
+                showModal(`Error scheduling post: ${error.message}`);
             });
     };
 
@@ -132,6 +146,25 @@ const PostSchedulerForm = () => {
                     </Grid.Column>
                 </Grid>
             </Form>
+            <Modal
+                onClose={() => setModalOpen(false)}
+                open={modalOpen}
+                size='tiny'
+                centered={false}
+            >
+                <Header icon>
+                    <Icon name={modalSuccess ? 'check circle' : 'exclamation triangle'} />
+                    {modalSuccess ? 'Success' : 'Error'}
+                </Header>
+                <Modal.Content>
+                    <p>{modalMessage}</p>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button color={modalSuccess ? 'green' : 'red'} inverted onClick={() => setModalOpen(false)}>
+                        <Icon name='checkmark' /> OK
+                    </Button>
+                </Modal.Actions>
+            </Modal>
         </Segment>
     );
 };
