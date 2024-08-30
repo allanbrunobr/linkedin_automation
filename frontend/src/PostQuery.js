@@ -1,24 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Form, Button, Checkbox, Container, Header, Segment, Table, Message, Loader, Dimmer } from 'semantic-ui-react';
+import 'semantic-ui-css/semantic.min.css';
 import './styles.css';
 
-/**
- * Formats a given timestamp in milliseconds to a localized string.
- *
- * @param {number} milliseconds - The timestamp in milliseconds.
- * @returns {string} The formatted date string in 'pt-BR' locale.
- */
 const formatDate = (milliseconds) => {
     const date = new Date(milliseconds);
     return date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 };
 
-/**
- * Formats a post object by converting the scheduled_time field to a human-readable format.
- *
- * @param {Object} post - The post object.
- * @returns {Object} The formatted post object with a readable scheduled_time.
- */
 const formatPostData = (post) => {
     let timestamp;
     if (post.scheduled_time?.$date) {
@@ -41,13 +31,6 @@ const formatPostData = (post) => {
     };
 };
 
-/**
- * PostQuery Component - This component provides an interface for querying scheduled posts
- * based on a date range. Users can search for posts, update them, or delete them.
- *
- * @component
- * @returns {JSX.Element} The rendered component.
- */
 const PostQuery = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -58,10 +41,6 @@ const PostQuery = () => {
     const [formError, setFormError] = useState('');
     const navigate = useNavigate();
 
-    /**
-     * Fetches posts from the backend based on the selected date range.
-     * The posts are formatted before being stored in the state.
-     */
     const fetchPosts = () => {
         const queryEndDate = isSingleDay ? startDate : endDate;
         setIsLoading(true);
@@ -78,11 +57,6 @@ const PostQuery = () => {
         }, 2000);
     };
 
-    /**
-     * Handles form submission to fetch posts based on the date range.
-     *
-     * @param {Event} event - The form submission event.
-     */
     const handleFormSubmit = (event) => {
         event.preventDefault();
         setFormError('');
@@ -100,11 +74,6 @@ const PostQuery = () => {
         fetchPosts();
     };
 
-    /**
-     * Deletes a post based on its ID and refetches the updated list of posts.
-     *
-     * @param {string} id - The ID of the post to be deleted.
-     */
     const deletePost = (id) => {
         fetch(`http://localhost:8080/posts/${id}`, {
             method: 'DELETE',
@@ -116,106 +85,95 @@ const PostQuery = () => {
             .catch(error => console.error('Error deleting post:', error));
     };
 
-    /**
-     * Navigates to the update screen with the selected post's details.
-     *
-     * @param {Object} post - The post object to be updated.
-     */
     const handleUpdateClick = (post) => {
         setSelectedPost(post);
         navigate('/update', { state: { post } });
     };
 
-    /**
-     * Handles the change of the "Single Day" checkbox.
-     * If checked, clears the end date.
-     *
-     * @param {Event} e - The change event.
-     */
-    const handleSingleDayChange = (e) => {
-        setIsSingleDay(e.target.checked);
-        if (e.target.checked) {
+    const handleSingleDayChange = (e, { checked }) => {
+        setIsSingleDay(checked);
+        if (checked) {
             setEndDate('');
         }
         setFormError('');
     };
 
-    /**
-     * Renders the list of posts.
-     *
-     * @returns {JSX.Element} The rendered list of posts.
-     */
     const renderPostList = () => (
-        <ul className="post-list">
-            {posts.map(post => (
-                <li key={post._id} className="post-item">
-                    <div className="post-content">
-                        <h3>{post.title}</h3>
-                        <p>{formatDate(post.scheduled_time)}</p>
-                    </div>
-                    <div className="post-actions">
-                        <button onClick={() => handleUpdateClick(post)} className="form-button update-button">Update</button>
-                        <button onClick={() => deletePost(post._id)} className="form-button delete-button">Delete</button>
-                    </div>
-                </li>
-            ))}
-        </ul>
+        <Table celled>
+            <Table.Header>
+                <Table.Row>
+                    <Table.HeaderCell>Title</Table.HeaderCell>
+                    <Table.HeaderCell>Scheduled Time</Table.HeaderCell>
+                    <Table.HeaderCell>Actions</Table.HeaderCell>
+                </Table.Row>
+            </Table.Header>
+            <Table.Body>
+                {posts.map(post => (
+                    <Table.Row key={post._id}>
+                        <Table.Cell>{post.title}</Table.Cell>
+                        <Table.Cell>{formatDate(post.scheduled_time)}</Table.Cell>
+                        <Table.Cell>
+                            <Button primary onClick={() => handleUpdateClick(post)}>Update</Button>
+                            <Button negative onClick={() => deletePost(post._id)}>Delete</Button>
+                        </Table.Cell>
+                    </Table.Row>
+                ))}
+            </Table.Body>
+        </Table>
     );
 
-    /**
-     * Renders the content of the component based on loading state and available posts.
-     *
-     * @returns {JSX.Element} The rendered content.
-     */
     const renderContent = () => {
-        if (isLoading) return <p>Loading...</p>;
-        if (posts.length === 0) return <p>No posts found for the selected date range.</p>;
+        if (isLoading) return <Loader active>Loading</Loader>;
+        if (posts.length === 0) return <Message info>No posts found for the selected date range.</Message>;
         return renderPostList();
     };
 
     return (
-        <div className="form-container">
-            <h2 className="form-title">Query Scheduled Posts</h2>
-            <form onSubmit={handleFormSubmit} className="query-form">
-                <div className="form-group date-inputs">
-                    <div className="date-input">
-                        <label htmlFor="startDate">Start Date</label>
-                        <input
-                            type="date"
-                            id="startDate"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                        />
-                        <div className="single-day-option">
+        <Container>
+            <Header as='h2' attached='top'>Query Scheduled Posts</Header>
+            <Segment attached>
+                <Form onSubmit={handleFormSubmit} error={!!formError}>
+                    <Form.Group widths='equal'>
+                        <Form.Field>
+                            <label>Start Date</label>
                             <input
-                                type="checkbox"
-                                id="singleDay"
-                                checked={isSingleDay}
-                                onChange={handleSingleDayChange}
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
                             />
-                            <label htmlFor="singleDay">Single day</label>
-                        </div>
-                    </div>
-                    <div className="date-input">
-                        <label htmlFor="endDate">End Date{!isSingleDay && '*'}</label>
-                        <input
-                            type="date"
-                            id="endDate"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            disabled={isSingleDay}
+                        </Form.Field>
+                        <Form.Field>
+                            <label>End Date {!isSingleDay && '*'}</label>
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                disabled={isSingleDay}
+                            />
+                        </Form.Field>
+                    </Form.Group>
+                    <Form.Field>
+                        <Checkbox
+                            label='Single day'
+                            checked={isSingleDay}
+                            onChange={handleSingleDayChange}
                         />
-                    </div>
-                </div>
-                {formError && <p className="error-message">{formError}</p>}
-                <button type="submit" className="form-button search-button">Search</button>
-            </form>
+                    </Form.Field>
+                    {formError && <Message error content={formError} />}
+                    <Button primary type='submit'>Search</Button>
+                </Form>
+            </Segment>
 
-            <div className="results-section">
-                <h2>Results</h2>
-                {renderContent()}
-            </div>
-        </div>
+            <Segment>
+                <Header as='h3'>Results</Header>
+                <Dimmer.Dimmable dimmed={isLoading}>
+                    <Dimmer active={isLoading} inverted>
+                        <Loader>Loading</Loader>
+                    </Dimmer>
+                    {renderContent()}
+                </Dimmer.Dimmable>
+            </Segment>
+        </Container>
     );
 };
 
